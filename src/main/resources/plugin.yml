@@ -1,0 +1,8 @@
+name: YajuuServerTrade
+version: '${project.version}'
+main: net.kanade1825.litematica.yajuuservertrade.YajuuServerTrade
+api-version: '1.20'
+depend: [CommandAPI,Citizens]
+commands:
+  setup:
+    description: setup command
