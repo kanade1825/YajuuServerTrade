@@ -15,8 +15,6 @@ import java.util.Objects;
 public final class YajuuServerTrade extends JavaPlugin {
 
 
-
-
     @Override
     public void onLoad() {
         CommandAPI.onLoad(new CommandAPIBukkitConfig(this).verboseOutput(true)); // Load with verbose output
@@ -27,7 +25,6 @@ public final class YajuuServerTrade extends JavaPlugin {
     public void onEnable() {
 
         CommandAPI.onEnable();
-
 
 
         //トレードNPCスポーンコマンド
@@ -42,7 +39,7 @@ public final class YajuuServerTrade extends JavaPlugin {
                 .executes((sender, args) -> {
 
                     String name = args.get(0).toString();
-                    if (name == null){
+                    if (name == null) {
                         sender.sendMessage("引数が有りません。");
                         return;
                     }
@@ -54,7 +51,6 @@ public final class YajuuServerTrade extends JavaPlugin {
                 .register();
 
 
-
         Objects.requireNonNull(getCommand("setup")).setExecutor(new SetUP(this));
 
 
@@ -62,9 +58,8 @@ public final class YajuuServerTrade extends JavaPlugin {
         PluginManager pluginManager = Bukkit.getPluginManager();
 
         // イベントリスナークラスを登録
-        pluginManager.registerEvents(new TradeNPC(), this);
+        pluginManager.registerEvents(new TradeNPC(this), this);
         pluginManager.registerEvents(new InventoryClose(), this);
-
 
 
         new SpawnTradeNPC(this);
