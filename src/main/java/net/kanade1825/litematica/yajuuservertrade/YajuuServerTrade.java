@@ -6,6 +6,10 @@ import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.CommandPermission;
 import dev.jorel.commandapi.arguments.ArgumentSuggestions;
 import dev.jorel.commandapi.arguments.StringArgument;
+import net.kanade1825.litematica.yajuuservertrade.tradenpc.CloseClockEvent;
+import net.kanade1825.litematica.yajuuservertrade.tradenpc.TradeNPC;
+import net.kanade1825.litematica.yajuuservertrade.tradenpc.TradeNPCInventoryClick;
+import net.kanade1825.litematica.yajuuservertrade.tradenpc.TradeNPCInventoryClose;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -58,14 +62,17 @@ public final class YajuuServerTrade extends JavaPlugin {
         PluginManager pluginManager = Bukkit.getPluginManager();
 
         // イベントリスナークラスを登録
-        pluginManager.registerEvents(new TradeNPC(this), this);
-        pluginManager.registerEvents(new InventoryClose(), this);
+        pluginManager.registerEvents(new TradeNPC(), this);
+        pluginManager.registerEvents(new TradeNPCInventoryClose(), this);
+        pluginManager.registerEvents(new TradeNPCInventoryClick(), this);
+        pluginManager.registerEvents(new CloseClockEvent(),this);
 
 
         new SpawnTradeNPC(this);
 
 
-        getLogger().info("　　　　　 /＼　　　 ／ヽ\n" +
+        getLogger().info(
+                "　　　　　 /＼　　　 ／ヽ\n" +
                 "　　 　 　 {／￣￣￣｀ヽ!\n" +
                 "　　　　 ∠＿＿╋＿＿ｊ\n" +
                 ".ヨシ!　 /　 ①_八①　　ヽ\n" +

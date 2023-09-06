@@ -1,7 +1,6 @@
-package net.kanade1825.litematica.yajuuservertrade;
+package net.kanade1825.litematica.yajuuservertrade.tradenpc;
 
 import net.citizensnpcs.api.event.NPCRightClickEvent;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -11,17 +10,9 @@ import java.util.Set;
 
 public class TradeNPC implements Listener {
 
-    private final YajuuServerTrade yajuuServerTrade;
-
-    public TradeNPC(YajuuServerTrade yajuuServerTrade) {
-        this.yajuuServerTrade = yajuuServerTrade;
-    }
-
-
     @EventHandler
     public void onTadokoroClick(NPCRightClickEvent event) {
         // 非同期
-        Bukkit.getScheduler().runTaskAsynchronously(yajuuServerTrade, () -> {
             String NPCname = event.getNPC().getName();
 
 
@@ -47,11 +38,8 @@ public class TradeNPC implements Listener {
 
                 }
             }
-
-
-        });
-
-
     }
 }
+
+
 
