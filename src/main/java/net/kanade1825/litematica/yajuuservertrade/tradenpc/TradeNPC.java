@@ -1,6 +1,7 @@
 package net.kanade1825.litematica.yajuuservertrade.tradenpc;
 
 import net.citizensnpcs.api.event.NPCRightClickEvent;
+import net.kanade1825.litematica.yajuuservertrade.tradenpc.inventorymenu.MainMenuInventoryGUI;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -13,31 +14,31 @@ public class TradeNPC implements Listener {
     @EventHandler
     public void onTadokoroClick(NPCRightClickEvent event) {
         // 非同期
-            String NPCname = event.getNPC().getName();
+        String NPCname = event.getNPC().getName();
 
 
-            if (NPCname.equals("Mr.Tadokoro")) {
+        if (NPCname.equals("Mr.Tadokoro")) {
 
 
-                Set<String> UserTags = event.getClicker().getScoreboardTags();
+            Set<String> UserTags = event.getClicker().getScoreboardTags();
 
-                if (UserTags.contains("TradeMenuOpen")) {
-                    event.setCancelled(true);
-                } else {
+            if (UserTags.contains("TradeMenuOpen")) {
+                event.setCancelled(true);
+            } else {
 
-                    Inventory inventory = new ViewItems().setupAndReturnTradeMenu();
-
-
-                    Player Clicker = event.getClicker();
+                Inventory inventory = new MainMenuInventoryGUI().setupAndReturnTradeMenu();
 
 
-                    Clicker.openInventory(inventory);
-
-                    Clicker.addScoreboardTag("TradeMenuOpen");
+                Player Clicker = event.getClicker();
 
 
-                }
+                Clicker.openInventory(inventory);
+
+                Clicker.addScoreboardTag("TradeMenuOpen");
+
+
             }
+        }
     }
 }
 

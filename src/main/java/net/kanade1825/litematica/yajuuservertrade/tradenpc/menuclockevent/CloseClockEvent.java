@@ -1,7 +1,9 @@
-package net.kanade1825.litematica.yajuuservertrade.tradenpc;
+package net.kanade1825.litematica.yajuuservertrade.tradenpc.menuclockevent;
 
-import org.bukkit.event.Listener;
+import net.kanade1825.litematica.yajuuservertrade.tradenpc.inventorymenu.MainMenuInventoryGUI;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -13,7 +15,7 @@ public class CloseClockEvent implements Listener {
         ItemStack clickedItem = event.getCurrentItem();
 
         // クリックされたインベントリの名前が"TradeMenu"であることを確認
-        if (clickedInventory != null && "TradeMenu".equals(clickedInventory.getTitle())) {
+        if ("TradeMenu".equals(clickedInventory.getTitle())) {
 
             // アイテムがnullでないか、表示名が存在するかを確認
             if (clickedItem != null && clickedItem.hasItemMeta() && clickedItem.getItemMeta().hasDisplayName()) {
@@ -21,12 +23,20 @@ public class CloseClockEvent implements Listener {
 
                 // クリックされたアイテムが"Close"という表示名の場合
                 if (displayName.equals("§c§lClose")) {
-                    event.getWhoClicked().sendMessage("You clicked the gold block!");
+                    Player player = (Player) event.getWhoClicked();
+                    player.closeInventory();
+
+                } else if (displayName.equals("§a§lGo Back")) {
+                    Player Clicker = (Player) event.getWhoClicked();
+                    Inventory inventory = new MainMenuInventoryGUI().setupAndReturnTradeMenu();
+
+
+                    Clicker.openInventory(inventory);
+
+                    Clicker.addScoreboardTag("TradeMenuOpen");
                 }
             }
         }
+
     }
-
-
-
 }

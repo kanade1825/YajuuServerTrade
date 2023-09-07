@@ -1,4 +1,4 @@
-package net.kanade1825.litematica.yajuuservertrade.tradenpc;
+package net.kanade1825.litematica.yajuuservertrade.tradenpc.inventorymenu;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -11,7 +11,7 @@ import java.util.List;
 
 
 //チェストから見えるアイテム
-public class ViewItems {
+public class MainMenuInventoryGUI {
 
     public void setupTradeMenu(Inventory inv) {
         // 全スロットを黒のガラス板で埋める

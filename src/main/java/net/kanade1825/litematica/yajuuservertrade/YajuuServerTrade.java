@@ -6,11 +6,15 @@ import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.CommandPermission;
 import dev.jorel.commandapi.arguments.ArgumentSuggestions;
 import dev.jorel.commandapi.arguments.StringArgument;
-import net.kanade1825.litematica.yajuuservertrade.tradenpc.CloseClockEvent;
 import net.kanade1825.litematica.yajuuservertrade.tradenpc.TradeNPC;
 import net.kanade1825.litematica.yajuuservertrade.tradenpc.TradeNPCInventoryClick;
 import net.kanade1825.litematica.yajuuservertrade.tradenpc.TradeNPCInventoryClose;
+import net.kanade1825.litematica.yajuuservertrade.tradenpc.menuclockevent.CloseClockEvent;
+import net.kanade1825.litematica.yajuuservertrade.tradenpc.menuclockevent.ManageTradesClockEvent;
+import net.kanade1825.litematica.yajuuservertrade.tradenpc.menuclockevent.TradeBrowserClickEvent;
+import net.kanade1825.litematica.yajuuservertrade.tradenpc.menuclockevent.ViewPositionClockEvent;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -65,7 +69,10 @@ public final class YajuuServerTrade extends JavaPlugin {
         pluginManager.registerEvents(new TradeNPC(), this);
         pluginManager.registerEvents(new TradeNPCInventoryClose(), this);
         pluginManager.registerEvents(new TradeNPCInventoryClick(), this);
-        pluginManager.registerEvents(new CloseClockEvent(),this);
+        pluginManager.registerEvents(new CloseClockEvent(), this);
+        pluginManager.registerEvents(new ManageTradesClockEvent(),this);
+        pluginManager.registerEvents(new ViewPositionClockEvent(),this);
+        pluginManager.registerEvents(new TradeBrowserClickEvent(),this);
 
 
         new SpawnTradeNPC(this);
@@ -73,26 +80,30 @@ public final class YajuuServerTrade extends JavaPlugin {
 
         getLogger().info(
                 "　　　　　 /＼　　　 ／ヽ\n" +
-                "　　 　 　 {／￣￣￣｀ヽ!\n" +
-                "　　　　 ∠＿＿╋＿＿ｊ\n" +
-                ".ヨシ!　 /　 ①_八①　　ヽ\n" +
-                "　　　　｛二ﾆ/(_人_)エ二 |´￣)｀ヽ\n" +
-                "　　　　 ＼　{　{_,ﾉ　ﾉ 　 / /⌒ヽ　L\n" +
-                "　 ⊂￣ ヽ_＞―――‐'’,〈　 　 (＿_)\n" +
-                "　　 └ヘ(＿ ィ r―‐γ 　 !\n" +
-                "　　　　 　 ＿,ﾉ j　　　|　　 |\n" +
-                "　　　　　｛　　 ｛　 　 ﾉ　　/＼\n" +
-                "　　 　 　 ＼ス￣￣￣lしｲ＼　＼\n" +
-                "　 　 　 (￣　　） 　 　 j　/ 　 ＼_j＼\n" +
-                "　　　　　￣￣　　 　 (　 ｀ヽ　　 ＼__)\n" +
-                "　　　　　　　　　　　　 ＼__ﾉ\n");
+                        "　　 　 　 {／￣￣￣｀ヽ!\n" +
+                        "　　　　 ∠＿＿╋＿＿ｊ\n" +
+                        ".ヨシ!　 /　 ①_八①　　ヽ\n" +
+                        "　　　　｛二ﾆ/(_人_)エ二 |´￣)｀ヽ\n" +
+                        "　　　　 ＼　{　{_,ﾉ　ﾉ 　 / /⌒ヽ　L\n" +
+                        "　 ⊂￣ ヽ_＞―――‐'’,〈　 　 (＿_)\n" +
+                        "　　 └ヘ(＿ ィ r―‐γ 　 !\n" +
+                        "　　　　 　 ＿,ﾉ j　　　|　　 |\n" +
+                        "　　　　　｛　　 ｛　 　 ﾉ　　/＼\n" +
+                        "　　 　 　 ＼ス￣￣￣lしｲ＼　＼\n" +
+                        "　 　 　 (￣　　） 　 　 j　/ 　 ＼_j＼\n" +
+                        "　　　　　￣￣　　 　 (　 ｀ヽ　　 ＼__)\n" +
+                        "　　　　　　　　　　　　 ＼__ﾉ\n");
         // Plugin startup logic
 
     }
 
     @Override
     public void onDisable() {
-
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            if (player.getScoreboardTags().contains("TradeMenuOpen")) {
+                player.removeScoreboardTag("TradeMenuOpen");
+            }
+        }
 
         getLogger().info("system stopped !");
         // Plugin shutdown logic
