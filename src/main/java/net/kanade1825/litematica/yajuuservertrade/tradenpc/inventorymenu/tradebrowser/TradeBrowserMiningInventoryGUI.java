@@ -1,0 +1,201 @@
+package net.kanade1825.litematica.yajuuservertrade.tradenpc.inventorymenu.tradebrowser;
+
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemFlag;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.List;
+
+public class TradeBrowserMiningInventoryGUI {
+
+    private JSONObject loadFirstJsonFromDirectory(String directoryPath) {
+        File directory = new File(directoryPath);
+        if (directory.exists() && directory.isDirectory()) {
+            File[] files = directory.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    if (file.getName().endsWith(".json")) {
+                        try {
+                            String content = new String(Files.readAllBytes(Paths.get(file.getAbsolutePath())));
+                            return new JSONObject(content);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+    public void setupTradeMenu(Inventory inv) {
+        // 全スロットを黒のガラス板で埋める
+        ItemStack cyanGlass = createCustomItem(Material.CYAN_STAINED_GLASS_PANE, " ", Collections.singletonList(""));
+
+        //くわ
+        ItemStack Golden_hoe = createCustomItem(Material.GOLDEN_HOE,"§e§lFarming",Collections.singletonList("§fCategory"));
+
+        inv.setItem(0,Golden_hoe);
+
+        //ぴっける
+        ItemStack diamond_pickaxe = createCustomItem(Material.DIAMOND_PICKAXE,"§b§lMining",Collections.singletonList("§fCategory"));
+
+        diamond_pickaxe.addUnsafeEnchantment(Enchantment.DURABILITY,1);
+        ItemMeta itemMeta = diamond_pickaxe.getItemMeta();
+        itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        diamond_pickaxe.setItemMeta(itemMeta);
+
+
+
+
+
+        //てつけん
+        ItemStack iron_sowrd = createCustomItem(Material.IRON_SWORD,"§c§lCombat",Collections.singletonList("§fCategory"));
+        //つりざお
+        ItemStack fishing_rod = createCustomItem(Material.FISHING_ROD,"§6§lWoods＆Fishes",Collections.singletonList("§fCategory"));
+        //エンチャントテーブル
+        ItemStack enchanted_table = createCustomItem(Material.ENCHANTING_TABLE,"§d§lOddities",Collections.singletonList("§fCategory"));
+        //かんばん
+        ItemStack kanban = createCustomItem(Material.OAK_SIGN,"§a§lSearch",Collections.singletonList("§fComming soon..."));
+        //ちぇすと　
+        ItemStack chest = createCustomItem(Material.CHEST,"§a§lSell Inventory Now",Collections.singletonList("§fComming soon..."));
+
+
+
+
+        // 特定のスロットに特別なアイテムを配置
+        //二列目空白
+        // 一列目: 全てを埋める
+        for (int i = 1; i < 9; i++) {
+            inv.setItem(i, cyanGlass);
+        }
+
+        // 二列目: 左端と右端のみを埋める
+        inv.setItem(9, diamond_pickaxe);
+        inv.setItem(10, cyanGlass);
+
+
+        // JSONデータからアイテムを作成して配置
+        JSONObject jsonData = loadFirstJsonFromDirectory("path/to/your/directory"); // <- ディレクトリのパスを指定してください
+        if (jsonData != null) {
+            ItemStack customItem = createItemFromJson(jsonData);
+            inv.setItem(11, customItem); // 二列目で左から三番目の位置にアイテムを配置
+        }
+
+
+
+
+
+        inv.setItem(17, cyanGlass);
+
+
+        // 三列目: 左端と右端のみを埋める
+        inv.setItem(18,iron_sowrd);
+        inv.setItem(19, cyanGlass);
+        inv.setItem(26, cyanGlass);
+
+        //四列目:
+        inv.setItem(27,fishing_rod);
+        inv.setItem(28,cyanGlass);
+        inv.setItem(35,cyanGlass);
+
+        //五列目:
+
+        inv.setItem(36,enchanted_table);
+        inv.setItem(37,cyanGlass);
+        inv.setItem(44,cyanGlass);
+
+        //六列目：
+        inv.setItem(45,kanban);
+        inv.setItem(46,cyanGlass);
+        inv.setItem(47,chest);
+        inv.setItem(48,cyanGlass);
+        //もどるぼたん
+        inv.setItem(49, createCustomItem(Material.ARROW, "§a§lGo Back", Collections.singletonList("")));
+        inv.setItem(50,cyanGlass);
+        inv.setItem(51,cyanGlass);
+        inv.setItem(52,cyanGlass);
+        inv.setItem(53,cyanGlass);
+
+    }
+
+    public ItemStack createItem(Material material, String displayName, List<String> lore) {
+        ItemStack item = new ItemStack(material, 1);
+        ItemMeta meta = item.getItemMeta();
+        meta.setLore(lore);
+        meta.setDisplayName(displayName);
+        item.setItemMeta(meta);
+        return item;
+    }
+
+    public Inventory setupAndReturnTradeMenu() {
+        Inventory inv = Bukkit.createInventory(null, 54, "TradeMenu");
+        setupTradeMenu(inv);
+        return inv;
+    }
+
+
+    public ItemStack createCustomItem(Material material, String displayName, List<String> lore) {
+        ItemStack item = new ItemStack(material, 1);
+        ItemMeta meta = item.getItemMeta();
+
+        meta.setDisplayName(displayName);
+        meta.setLore(lore);
+
+        item.setItemMeta(meta);
+        return item;
+    }
+
+
+
+
+
+    //{
+    //  "itemID": "IRON_SWORD",
+    //  "displayName": "Sword of Legends",
+    //  "isCategoryItem": false,
+    //  "initialValue": 100
+    //}
+
+    //{
+    //  "itemID": "IRON_SWORD",
+    //  "displayName": "Sword of Legends",
+    //  "isCategoryItem": 2
+    //}
+    public ItemStack createItemFromJson(JSONObject jsonObject) {
+        String itemID = jsonObject.getString("itemID");
+        String displayName = "§b§l" + jsonObject.getString("displayName");
+        Material material = Material.valueOf(itemID);
+        ItemStack item = new ItemStack(material, 1);
+        ItemMeta meta = item.getItemMeta();
+        meta.setDisplayName(displayName);
+
+        Object categoryObject = jsonObject.get("isCategoryItem");
+        if (categoryObject instanceof Boolean && !((Boolean) categoryObject)) {
+            int initialValue = jsonObject.getInt("initialValue");  // 初期値を取得
+            // 必要に応じて、初期値を使用してアイテムのメタデータや他の属性を設定します
+            // 例: meta.setCustomModelData(initialValue); など
+        } else if (categoryObject instanceof Number) {
+            int categoryValue = ((Number) categoryObject).intValue();
+            // カテゴリー値に基づいてアイテムをカスタマイズする処理をここに書く
+            // 例: カテゴリー値を使用して、カスタムモデルデータや他の属性を設定する
+        }
+
+        item.setItemMeta(meta);
+        return item;
+    }
+
+
+
+
+
+}

@@ -1,6 +1,7 @@
-package net.kanade1825.litematica.yajuuservertrade.tradenpc.menuclockevent;
+package net.kanade1825.litematica.yajuuservertrade.tradenpc.menuclockevent.tradebrowser;
 
-import net.kanade1825.litematica.yajuuservertrade.tradenpc.inventorymenu.TradeBrowserMiningInventoryGUI;
+import net.kanade1825.litematica.yajuuservertrade.tradenpc.inventorymenu.tradebrowser.TradeBrowserMiningInventoryGUI;
+import net.kanade1825.litematica.yajuuservertrade.tradenpc.inventorymenu.tradebrowser.TradeBrowserOdditiesInventoryGUI;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -8,7 +9,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-public class TradeBrowserClickEvent implements Listener {
+public class TradeBrowserOdditiesClickEvent implements Listener {
     @EventHandler
     public void onViewPositionClick(InventoryClickEvent event) {
         var clickedInventory = event.getView();
@@ -22,9 +23,9 @@ public class TradeBrowserClickEvent implements Listener {
                 String displayName = clickedItem.getItemMeta().getDisplayName();
 
                 // クリックされたアイテムが"Manage Trades"という表示名の場合
-                if (displayName.equals("§6§lTrade Browser")) {
+                if (displayName.equals("§d§lOddities")) {
 
-                    Inventory inventory = new TradeBrowserMiningInventoryGUI().setupAndReturnTradeMenu();
+                    Inventory inventory = new TradeBrowserOdditiesInventoryGUI().setupAndReturnTradeMenu();
 
 
                     Player Clicker = (Player) event.getWhoClicked();
@@ -39,4 +40,9 @@ public class TradeBrowserClickEvent implements Listener {
             }
         }
     }
+
+
+
+
+
 }

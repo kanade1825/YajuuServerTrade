@@ -1,6 +1,5 @@
 package net.kanade1825.litematica.yajuuservertrade.tradenpc.menuclockevent;
 
-import net.kanade1825.litematica.yajuuservertrade.tradenpc.inventorymenu.TradeBrowserMiningInventoryGUI;
 import net.kanade1825.litematica.yajuuservertrade.tradenpc.inventorymenu.ViewPositionInventoryGUI;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

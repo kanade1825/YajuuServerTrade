@@ -11,7 +11,7 @@ import net.kanade1825.litematica.yajuuservertrade.tradenpc.TradeNPCInventoryClic
 import net.kanade1825.litematica.yajuuservertrade.tradenpc.TradeNPCInventoryClose;
 import net.kanade1825.litematica.yajuuservertrade.tradenpc.menuclockevent.CloseClockEvent;
 import net.kanade1825.litematica.yajuuservertrade.tradenpc.menuclockevent.ManageTradesClockEvent;
-import net.kanade1825.litematica.yajuuservertrade.tradenpc.menuclockevent.TradeBrowserClickEvent;
+import net.kanade1825.litematica.yajuuservertrade.tradenpc.menuclockevent.tradebrowser.*;
 import net.kanade1825.litematica.yajuuservertrade.tradenpc.menuclockevent.ViewPositionClockEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -73,6 +73,12 @@ public final class YajuuServerTrade extends JavaPlugin {
         pluginManager.registerEvents(new ManageTradesClockEvent(),this);
         pluginManager.registerEvents(new ViewPositionClockEvent(),this);
         pluginManager.registerEvents(new TradeBrowserClickEvent(),this);
+        pluginManager.registerEvents(new TradeBrowserCombatClockEvent(),this);
+        pluginManager.registerEvents(new TradeBrowserFarmingClickEvent(),this);
+        pluginManager.registerEvents(new TradeBrowserMiningClickEvent(),this);
+        pluginManager.registerEvents(new TradeBrowserWoodsAndFishesClickEvent(),this);
+        pluginManager.registerEvents(new TradeBrowserOdditiesClickEvent(),this);
+
 
 
         new SpawnTradeNPC(this);

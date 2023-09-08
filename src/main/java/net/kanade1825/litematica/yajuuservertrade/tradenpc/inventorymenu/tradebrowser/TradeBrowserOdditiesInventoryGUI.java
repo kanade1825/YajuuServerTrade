@@ -1,18 +1,21 @@
-package net.kanade1825.litematica.yajuuservertrade.tradenpc.inventorymenu;
+package net.kanade1825.litematica.yajuuservertrade.tradenpc.inventorymenu.tradebrowser;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Collections;
 import java.util.List;
 
-public class TradeBrowserMiningInventoryGUI {
+public class TradeBrowserOdditiesInventoryGUI {
+
     public void setupTradeMenu(Inventory inv) {
         // 全スロットを黒のガラス板で埋める
-        ItemStack cyanGlass = createCustomItem(Material.CYAN_STAINED_GLASS_PANE, " ", Collections.singletonList(""));
+        ItemStack pingGlass = createCustomItem(Material.PINK_STAINED_GLASS_PANE, " ", Collections.singletonList(""));
 
         //くわ
         ItemStack Golden_hoe = createCustomItem(Material.GOLDEN_HOE,"§e§lFarming",Collections.singletonList("§fCategory"));
@@ -27,6 +30,15 @@ public class TradeBrowserMiningInventoryGUI {
         ItemStack fishing_rod = createCustomItem(Material.FISHING_ROD,"§6§lWoods＆Fishes",Collections.singletonList("§fCategory"));
         //エンチャントテーブル
         ItemStack enchanted_table = createCustomItem(Material.ENCHANTING_TABLE,"§d§lOddities",Collections.singletonList("§fCategory"));
+
+        enchanted_table.addUnsafeEnchantment(Enchantment.DURABILITY,1);
+        ItemMeta itemMeta = enchanted_table.getItemMeta();
+        itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        enchanted_table.setItemMeta(itemMeta);
+
+
+
+
         //かんばん
         ItemStack kanban = createCustomItem(Material.OAK_SIGN,"§a§lSearch",Collections.singletonList("§fComming soon..."));
         //ちぇすと　
@@ -39,42 +51,42 @@ public class TradeBrowserMiningInventoryGUI {
         //二列目空白
         // 一列目: 全てを埋める
         for (int i = 1; i < 9; i++) {
-            inv.setItem(i, cyanGlass);
+            inv.setItem(i, pingGlass);
         }
 
         // 二列目: 左端と右端のみを埋める
         inv.setItem(9,diamond_pickaxe);
-        inv.setItem(10, cyanGlass);
-        inv.setItem(17, cyanGlass);
+        inv.setItem(10, pingGlass);
+        inv.setItem(17, pingGlass);
 
 
         // 三列目: 左端と右端のみを埋める
         inv.setItem(18,iron_sowrd);
-        inv.setItem(19, cyanGlass);
-        inv.setItem(26, cyanGlass);
+        inv.setItem(19, pingGlass);
+        inv.setItem(26, pingGlass);
 
         //四列目:
         inv.setItem(27,fishing_rod);
-        inv.setItem(28,cyanGlass);
-        inv.setItem(35,cyanGlass);
+        inv.setItem(28,pingGlass);
+        inv.setItem(35,pingGlass);
 
         //五列目:
 
         inv.setItem(36,enchanted_table);
-        inv.setItem(37,cyanGlass);
-        inv.setItem(44,cyanGlass);
+        inv.setItem(37,pingGlass);
+        inv.setItem(44,pingGlass);
 
         //六列目：
         inv.setItem(45,kanban);
-        inv.setItem(46,cyanGlass);
+        inv.setItem(46,pingGlass);
         inv.setItem(47,chest);
-        inv.setItem(48,cyanGlass);
+        inv.setItem(48,pingGlass);
         //もどるぼたん
         inv.setItem(49, createCustomItem(Material.ARROW, "§a§lGo Back", Collections.singletonList("")));
-        inv.setItem(50,cyanGlass);
-        inv.setItem(51,cyanGlass);
-        inv.setItem(52,cyanGlass);
-        inv.setItem(53,cyanGlass);
+        inv.setItem(50,pingGlass);
+        inv.setItem(51,pingGlass);
+        inv.setItem(52,pingGlass);
+        inv.setItem(53,pingGlass);
 
     }
 
@@ -104,6 +116,4 @@ public class TradeBrowserMiningInventoryGUI {
         item.setItemMeta(meta);
         return item;
     }
-
-
 }
