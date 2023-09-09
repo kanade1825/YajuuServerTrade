@@ -25,33 +25,29 @@ public class TradeBrowserMiningInventoryGUI {
         ItemStack cyanGlass = createCustomItem(Material.CYAN_STAINED_GLASS_PANE, " ", Collections.singletonList(""));
 
         //くわ
-        ItemStack Golden_hoe = createCustomItem(Material.GOLDEN_HOE,"§e§lFarming",Collections.singletonList("§fCategory"));
+        ItemStack Golden_hoe = createCustomItem(Material.GOLDEN_HOE, "§e§lFarming", Collections.singletonList("§fCategory"));
 
-        inv.setItem(0,Golden_hoe);
+        inv.setItem(0, Golden_hoe);
 
         //ぴっける
-        ItemStack diamond_pickaxe = createCustomItem(Material.DIAMOND_PICKAXE,"§b§lMining",Collections.singletonList("§fCategory"));
+        ItemStack diamond_pickaxe = createCustomItem(Material.DIAMOND_PICKAXE, "§b§lMining", Collections.singletonList("§fCategory"));
 
-        diamond_pickaxe.addUnsafeEnchantment(Enchantment.DURABILITY,1);
+        diamond_pickaxe.addUnsafeEnchantment(Enchantment.DURABILITY, 1);
         ItemMeta itemMeta = diamond_pickaxe.getItemMeta();
         itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         diamond_pickaxe.setItemMeta(itemMeta);
 
 
-
-
-
         //てつけん
-        ItemStack iron_sowrd = createCustomItem(Material.IRON_SWORD,"§c§lCombat",Collections.singletonList("§fCategory"));
+        ItemStack iron_sowrd = createCustomItem(Material.IRON_SWORD, "§c§lCombat", Collections.singletonList("§fCategory"));
         //つりざお
-        ItemStack fishing_rod = createCustomItem(Material.FISHING_ROD,"§6§lWoods＆Fishes",Collections.singletonList("§fCategory"));
+        ItemStack fishing_rod = createCustomItem(Material.FISHING_ROD, "§6§lWoods＆Fishes", Collections.singletonList("§fCategory"));
         //エンチャントテーブル
-        ItemStack enchanted_table = createCustomItem(Material.ENCHANTING_TABLE,"§d§lOddities",Collections.singletonList("§fCategory"));
+        ItemStack enchanted_table = createCustomItem(Material.ENCHANTING_TABLE, "§d§lOddities", Collections.singletonList("§fCategory"));
         //かんばん
-        ItemStack kanban = createCustomItem(Material.OAK_SIGN,"§a§lSearch",Collections.singletonList("§fComming soon..."));
+        ItemStack kanban = createCustomItem(Material.OAK_SIGN, "§a§lSearch", Collections.singletonList("§fComming soon..."));
         //ちぇすと　
-        ItemStack chest = createCustomItem(Material.CHEST,"§a§lSell Inventory Now",Collections.singletonList("§fComming soon..."));
-
+        ItemStack chest = createCustomItem(Material.CHEST, "§a§lSell Inventory Now", Collections.singletonList("§fComming soon..."));
 
 
         // 特定のスロットに特別なアイテムを配置
@@ -66,37 +62,36 @@ public class TradeBrowserMiningInventoryGUI {
         inv.setItem(10, cyanGlass);
 
 
-
         inv.setItem(17, cyanGlass);
 
 
         // 三列目: 左端と右端のみを埋める
-        inv.setItem(18,iron_sowrd);
+        inv.setItem(18, iron_sowrd);
         inv.setItem(19, cyanGlass);
         inv.setItem(26, cyanGlass);
 
         //四列目:
-        inv.setItem(27,fishing_rod);
-        inv.setItem(28,cyanGlass);
-        inv.setItem(35,cyanGlass);
+        inv.setItem(27, fishing_rod);
+        inv.setItem(28, cyanGlass);
+        inv.setItem(35, cyanGlass);
 
         //五列目:
 
-        inv.setItem(36,enchanted_table);
-        inv.setItem(37,cyanGlass);
-        inv.setItem(44,cyanGlass);
+        inv.setItem(36, enchanted_table);
+        inv.setItem(37, cyanGlass);
+        inv.setItem(44, cyanGlass);
 
         //六列目：
-        inv.setItem(45,kanban);
-        inv.setItem(46,cyanGlass);
-        inv.setItem(47,chest);
-        inv.setItem(48,cyanGlass);
+        inv.setItem(45, kanban);
+        inv.setItem(46, cyanGlass);
+        inv.setItem(47, chest);
+        inv.setItem(48, cyanGlass);
         //もどるぼたん
         inv.setItem(49, createCustomItem(Material.ARROW, "§a§lGo Back", Collections.singletonList("")));
-        inv.setItem(50,cyanGlass);
-        inv.setItem(51,cyanGlass);
-        inv.setItem(52,cyanGlass);
-        inv.setItem(53,cyanGlass);
+        inv.setItem(50, cyanGlass);
+        inv.setItem(51, cyanGlass);
+        inv.setItem(52, cyanGlass);
+        inv.setItem(53, cyanGlass);
 
 
         // JSONデータからアイテムを作成して配置
@@ -119,11 +114,6 @@ public class TradeBrowserMiningInventoryGUI {
                 counter++;
             }
         }
-
-
-
-
-
 
 
     }
@@ -154,9 +144,6 @@ public class TradeBrowserMiningInventoryGUI {
         item.setItemMeta(meta);
         return item;
     }
-
-
-
 
 
     //{
@@ -212,9 +199,6 @@ public class TradeBrowserMiningInventoryGUI {
         }
         return jsonObjects;
     }
-
-
-
 
 
 }

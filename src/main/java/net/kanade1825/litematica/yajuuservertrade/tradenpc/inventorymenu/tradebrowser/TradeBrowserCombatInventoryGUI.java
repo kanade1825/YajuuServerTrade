@@ -25,34 +25,30 @@ public class TradeBrowserCombatInventoryGUI {
 
 
         //くわ
-        ItemStack Golden_hoe = createCustomItem(Material.GOLDEN_HOE,"§e§lFarming",Collections.singletonList("§fCategory"));
+        ItemStack Golden_hoe = createCustomItem(Material.GOLDEN_HOE, "§e§lFarming", Collections.singletonList("§fCategory"));
 
-        inv.setItem(0,Golden_hoe);
+        inv.setItem(0, Golden_hoe);
 
 
         //ぴっける
-        ItemStack diamond_pickaxe = createCustomItem(Material.DIAMOND_PICKAXE,"§b§lMining",Collections.singletonList("§fCategory"));
+        ItemStack diamond_pickaxe = createCustomItem(Material.DIAMOND_PICKAXE, "§b§lMining", Collections.singletonList("§fCategory"));
         //てつけん
-        ItemStack iron_sowrd = createCustomItem(Material.IRON_SWORD,"§c§lCombat",Collections.singletonList("§fCategory"));
+        ItemStack iron_sowrd = createCustomItem(Material.IRON_SWORD, "§c§lCombat", Collections.singletonList("§fCategory"));
 
-        iron_sowrd.addUnsafeEnchantment(Enchantment.DURABILITY,1);
+        iron_sowrd.addUnsafeEnchantment(Enchantment.DURABILITY, 1);
         ItemMeta itemMeta = iron_sowrd.getItemMeta();
         itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         iron_sowrd.setItemMeta(itemMeta);
 
 
-
-
         //つりざお
-        ItemStack fishing_rod = createCustomItem(Material.FISHING_ROD,"§6§lWoods＆Fishes",Collections.singletonList("§fCategory"));
+        ItemStack fishing_rod = createCustomItem(Material.FISHING_ROD, "§6§lWoods＆Fishes", Collections.singletonList("§fCategory"));
         //エンチャントテーブル
-        ItemStack enchanted_table = createCustomItem(Material.ENCHANTING_TABLE,"§d§lOddities",Collections.singletonList("§fCategory"));
+        ItemStack enchanted_table = createCustomItem(Material.ENCHANTING_TABLE, "§d§lOddities", Collections.singletonList("§fCategory"));
         //かんばん
-        ItemStack kanban = createCustomItem(Material.OAK_SIGN,"§a§lSearch",Collections.singletonList("§fComming soon..."));
+        ItemStack kanban = createCustomItem(Material.OAK_SIGN, "§a§lSearch", Collections.singletonList("§fComming soon..."));
         //ちぇすと　
-        ItemStack chest = createCustomItem(Material.CHEST,"§a§lSell Inventory Now",Collections.singletonList("§fComming soon..."));
-
-
+        ItemStack chest = createCustomItem(Material.CHEST, "§a§lSell Inventory Now", Collections.singletonList("§fComming soon..."));
 
 
         // 特定のスロットに特別なアイテムを配置
@@ -63,31 +59,31 @@ public class TradeBrowserCombatInventoryGUI {
         }
 
         // 二列目: 左端と右端のみを埋める
-        inv.setItem(9,diamond_pickaxe);
+        inv.setItem(9, diamond_pickaxe);
         inv.setItem(10, redGlass);
         inv.setItem(17, redGlass);
 
 
         // 三列目: 左端と右端のみを埋める
-        inv.setItem(18,iron_sowrd);
+        inv.setItem(18, iron_sowrd);
         inv.setItem(19, redGlass);
         inv.setItem(26, redGlass);
 
         //四列目:
-        inv.setItem(27,fishing_rod);
+        inv.setItem(27, fishing_rod);
         inv.setItem(28, redGlass);
         inv.setItem(35, redGlass);
 
         //五列目:
 
-        inv.setItem(36,enchanted_table);
+        inv.setItem(36, enchanted_table);
         inv.setItem(37, redGlass);
         inv.setItem(44, redGlass);
 
         //六列目：
-        inv.setItem(45,kanban);
+        inv.setItem(45, kanban);
         inv.setItem(46, redGlass);
-        inv.setItem(47,chest);
+        inv.setItem(47, chest);
         inv.setItem(48, redGlass);
         //もどるぼたん
         inv.setItem(49, createCustomItem(Material.ARROW, "§a§lGo Back", Collections.singletonList("")));
@@ -116,9 +112,6 @@ public class TradeBrowserCombatInventoryGUI {
                 counter++;
             }
         }
-
-
-
 
 
     }
