@@ -7,7 +7,13 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.json.JSONObject;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -90,6 +96,31 @@ public class TradeBrowserCombatInventoryGUI {
         inv.setItem(52, redGlass);
         inv.setItem(53, redGlass);
 
+        // JSONデータからアイテムを作成して配置
+        // JSONからのアイテムの配置
+        //動的アイテムの設定部分
+        List<JSONObject> jsonList = loadJsonFilesFromDirectory("plugins/Tradesystem/Category/Combat");
+        int[] startSlots = {11, 20, 29, 38};
+        int slotIndex = 0;
+        int counter = 0;
+
+        for (JSONObject jsonObject : jsonList) {
+            if (slotIndex >= startSlots.length || counter >= 6) {
+                counter = 0;
+                slotIndex++;
+            }
+
+            if (slotIndex < startSlots.length) {
+                ItemStack customItem = createItemFromJson(jsonObject);
+                inv.setItem(startSlots[slotIndex] + counter, customItem);
+                counter++;
+            }
+        }
+
+
+
+
+
     }
 
     public ItemStack createItem(Material material, String displayName, List<String> lore) {
@@ -117,6 +148,60 @@ public class TradeBrowserCombatInventoryGUI {
 
         item.setItemMeta(meta);
         return item;
+    }
+
+    //{
+    //  "itemID": "IRON_SWORD",
+    //  "displayName": "Sword of Legends",
+    //  "isCategoryItem": false,
+    //  "initialValue": 100
+    //}
+
+    //{
+    //  "itemID": "IRON_SWORD",
+    //  "displayName": "Sword of Legends",
+    //  "isCategoryItem": 2
+    //}
+    public ItemStack createItemFromJson(JSONObject jsonObject) {
+        String itemID = jsonObject.getString("itemID");
+        String displayName = "§c§l" + jsonObject.getString("displayName");
+        Material material = Material.valueOf(itemID);
+        ItemStack item = new ItemStack(material, 1);
+        ItemMeta meta = item.getItemMeta();
+        meta.setDisplayName(displayName);
+
+        Object categoryObject = jsonObject.get("isCategoryItem");
+        if (categoryObject instanceof Boolean && !((Boolean) categoryObject)) {
+            int initialValue = jsonObject.getInt("initialValue");
+            // 必要に応じて、初期値を使用してアイテムのメタデータや他の属性を設定します
+        } else if (categoryObject instanceof Number) {
+            int categoryValue = ((Number) categoryObject).intValue();
+            // カテゴリー値に基づいてアイテムをカスタマイズする処理をここに書く
+        }
+
+        item.setItemMeta(meta);
+        return item;
+    }
+
+    private List<JSONObject> loadJsonFilesFromDirectory(String directoryPath) {
+        List<JSONObject> jsonObjects = new ArrayList<>();
+        File directory = new File(directoryPath);
+        if (directory.exists() && directory.isDirectory()) {
+            File[] files = directory.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    if (file.getName().endsWith(".json")) {
+                        try {
+                            String content = new String(Files.readAllBytes(Paths.get(file.getAbsolutePath())));
+                            jsonObjects.add(new JSONObject(content));
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        }
+        return jsonObjects;
     }
 
 

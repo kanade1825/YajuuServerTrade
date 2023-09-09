@@ -78,6 +78,7 @@ public final class YajuuServerTrade extends JavaPlugin {
         pluginManager.registerEvents(new TradeBrowserMiningClickEvent(),this);
         pluginManager.registerEvents(new TradeBrowserWoodsAndFishesClickEvent(),this);
         pluginManager.registerEvents(new TradeBrowserOdditiesClickEvent(),this);
+        pluginManager.registerEvents(new TradeBrowserMoveItemClickEvent(),this);
 
 
 

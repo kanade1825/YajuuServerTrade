@@ -13,30 +13,13 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public class TradeBrowserMiningInventoryGUI {
 
-    private JSONObject loadFirstJsonFromDirectory(String directoryPath) {
-        File directory = new File(directoryPath);
-        if (directory.exists() && directory.isDirectory()) {
-            File[] files = directory.listFiles();
-            if (files != null) {
-                for (File file : files) {
-                    if (file.getName().endsWith(".json")) {
-                        try {
-                            String content = new String(Files.readAllBytes(Paths.get(file.getAbsolutePath())));
-                            return new JSONObject(content);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            }
-        }
-        return null;
-    }
+
     public void setupTradeMenu(Inventory inv) {
         // 全スロットを黒のガラス板で埋める
         ItemStack cyanGlass = createCustomItem(Material.CYAN_STAINED_GLASS_PANE, " ", Collections.singletonList(""));
@@ -71,7 +54,6 @@ public class TradeBrowserMiningInventoryGUI {
 
 
 
-
         // 特定のスロットに特別なアイテムを配置
         //二列目空白
         // 一列目: 全てを埋める
@@ -82,16 +64,6 @@ public class TradeBrowserMiningInventoryGUI {
         // 二列目: 左端と右端のみを埋める
         inv.setItem(9, diamond_pickaxe);
         inv.setItem(10, cyanGlass);
-
-
-        // JSONデータからアイテムを作成して配置
-        JSONObject jsonData = loadFirstJsonFromDirectory("path/to/your/directory"); // <- ディレクトリのパスを指定してください
-        if (jsonData != null) {
-            ItemStack customItem = createItemFromJson(jsonData);
-            inv.setItem(11, customItem); // 二列目で左から三番目の位置にアイテムを配置
-        }
-
-
 
 
 
@@ -125,6 +97,34 @@ public class TradeBrowserMiningInventoryGUI {
         inv.setItem(51,cyanGlass);
         inv.setItem(52,cyanGlass);
         inv.setItem(53,cyanGlass);
+
+
+        // JSONデータからアイテムを作成して配置
+        // JSONからのアイテムの配置
+        //動的アイテムの設定部分
+        List<JSONObject> jsonList = loadJsonFilesFromDirectory("plugins/Tradesystem/Category/Mining");
+        int[] startSlots = {11, 20, 29, 38};
+        int slotIndex = 0;
+        int counter = 0;
+
+        for (JSONObject jsonObject : jsonList) {
+            if (slotIndex >= startSlots.length || counter >= 6) {
+                counter = 0;
+                slotIndex++;
+            }
+
+            if (slotIndex < startSlots.length) {
+                ItemStack customItem = createItemFromJson(jsonObject);
+                inv.setItem(startSlots[slotIndex] + counter, customItem);
+                counter++;
+            }
+        }
+
+
+
+
+
+
 
     }
 
@@ -181,17 +181,36 @@ public class TradeBrowserMiningInventoryGUI {
 
         Object categoryObject = jsonObject.get("isCategoryItem");
         if (categoryObject instanceof Boolean && !((Boolean) categoryObject)) {
-            int initialValue = jsonObject.getInt("initialValue");  // 初期値を取得
+            int initialValue = jsonObject.getInt("initialValue");
             // 必要に応じて、初期値を使用してアイテムのメタデータや他の属性を設定します
-            // 例: meta.setCustomModelData(initialValue); など
         } else if (categoryObject instanceof Number) {
             int categoryValue = ((Number) categoryObject).intValue();
             // カテゴリー値に基づいてアイテムをカスタマイズする処理をここに書く
-            // 例: カテゴリー値を使用して、カスタムモデルデータや他の属性を設定する
         }
 
         item.setItemMeta(meta);
         return item;
+    }
+
+    private List<JSONObject> loadJsonFilesFromDirectory(String directoryPath) {
+        List<JSONObject> jsonObjects = new ArrayList<>();
+        File directory = new File(directoryPath);
+        if (directory.exists() && directory.isDirectory()) {
+            File[] files = directory.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    if (file.getName().endsWith(".json")) {
+                        try {
+                            String content = new String(Files.readAllBytes(Paths.get(file.getAbsolutePath())));
+                            jsonObjects.add(new JSONObject(content));
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        }
+        return jsonObjects;
     }
 
 
