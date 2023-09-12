@@ -44,8 +44,8 @@ public class TradeBrowserMoveItemClickEvent implements Listener {
 
         // "TradeMenu" タイトルのインベントリがクリックされたときの処理
         if ("TradeMenu".equals(clickedInventory.getTitle())) {
-            if (clickedItem != null && clickedItem.hasItemMeta() && clickedItem.getItemMeta().hasDisplayName()) {
-                String displayName = clickedItem.getItemMeta().getDisplayName().replaceAll("§[6debce]§l", "");
+            if (clickedItem != null && clickedItem.hasItemMeta() && !clickedItem.getItemMeta().getDisplayName().equals("DisplayItem")) {
+                String displayName = clickedItem.getItemMeta().getDisplayName().replaceAll("§.", "");
 
                 for (String directory : directories) {
                     JSONObject matchedJson = findJsonWithDisplayName(directory, displayName);
@@ -79,6 +79,10 @@ public class TradeBrowserMoveItemClickEvent implements Listener {
                             JSONObject jsonObject = (JSONObject) parser.parse(reader);
                             if (displayName.equals(jsonObject.get("displayName"))) {
                                 jsonObject.put("filePath", file.getAbsolutePath()); // ファイルの相対パスを追加
+                                // サブアイテムが存在する場合、それを追加します。
+                                if (jsonObject.containsKey("items")) {
+                                    jsonObject.put("subItems", jsonObject.get("items"));
+                                }
                                 return jsonObject;
                             }
                         } catch (IOException | ParseException e) {
@@ -102,17 +106,13 @@ public class TradeBrowserMoveItemClickEvent implements Listener {
             Inventory inventory = new TradeBrowserTradeControlInventoryGUI(displayNameFromJson, itemIDFromJson).setupAndReturnTradeMenu(); // ファイルパスを渡す
             player.openInventory(inventory);  // この行を追加して、プレイヤーにインベントリを表示
             player.addScoreboardTag("TradeMenuOpen");
-
-
             // 以下に、displayNameFromJsonとitemIDFromJsonを使用するコードを追加できます
-
-            //各メニューごとにタグを着けることにより識別する案
 
         } else if (categoryItemObj instanceof Number) {
             int categoryValue = ((Number) categoryItemObj).intValue();
             switch (categoryValue) {
                 case 2:
-
+                    items_1 = (List<Map<String, Object>>) jsonObject.get("subItems");
                     String filePath = (String) jsonObject.get("filePath");//パスを取得
                     Inventory inventory = new TradeBrowserCategoryNumberIsTwoInventoryGUI().setupAndReturnTradeMenu(filePath); // ファイルパスを渡す
                     player.openInventory(inventory);  // この行を追加して、プレイヤーにインベントリを表示
@@ -120,7 +120,7 @@ public class TradeBrowserMoveItemClickEvent implements Listener {
                     player.addScoreboardTag("TradeMenuOpen_CategoryTwo");
                     break;
                 case 3:
-
+                    items_2 = (List<Map<String, Object>>) jsonObject.get("subItems");
                     String filePath_Three = (String) jsonObject.get("filePath");//パスを取得
                     Inventory inventory_Three = new TradeBrowserCategoryNumberIsThreeInventoryGUI().setupAndReturnTradeMenu(filePath_Three); // ファイルパスを渡す
                     player.openInventory(inventory_Three);  // この行を追加して、プレイヤーにインベントリを表示
@@ -128,6 +128,7 @@ public class TradeBrowserMoveItemClickEvent implements Listener {
                     player.addScoreboardTag("TradeMenuOpen");
                     break;
                 case 4:
+                    items_3 = (List<Map<String, Object>>) jsonObject.get("subItems");
                     String filePath_Fore = (String) jsonObject.get("filePath");//パスを取得
                     Inventory inventory_Fore = new TradeBrowserCategoryNumberIsFourInventoryGUI().setupAndReturnTradeMenu(filePath_Fore); // ファイルパスを渡す
                     player.openInventory(inventory_Fore);
@@ -140,16 +141,16 @@ public class TradeBrowserMoveItemClickEvent implements Listener {
         }
     }
 
-
-    // ... (findJsonWithDisplayNameメソッドなどの既存のコード)
-
     private void handleCategoryTwoItemClick(InventoryClickEvent event) {
         Player player = (Player) event.getWhoClicked();
         ItemStack clickedItem = event.getCurrentItem();
         if (clickedItem != null && clickedItem.hasItemMeta() && clickedItem.getItemMeta().hasDisplayName()) {
-            String displayName = clickedItem.getItemMeta().getDisplayName();
+            String displayName = clickedItem.getItemMeta().getDisplayName().replaceAll("§.", ""); // 強調表示用の文字列を除去
             for (Map<String, Object> item : items_1) {
-                if (displayName.equals("§f" + item.get("displayName"))) {
+                if (displayName.equals(item.get("displayName"))) {
+                    // 一致するアイテムを取得して処理を行います。
+                    String itemId = (String) item.get("itemID");
+                    // ここで itemId などのプロパティを使用して必要な処理を行うことができます。
                     player.sendMessage("You clicked on an item from Category Two with displayName: " + displayName);
                 }
             }
@@ -160,9 +161,12 @@ public class TradeBrowserMoveItemClickEvent implements Listener {
         Player player = (Player) event.getWhoClicked();
         ItemStack clickedItem = event.getCurrentItem();
         if (clickedItem != null && clickedItem.hasItemMeta() && clickedItem.getItemMeta().hasDisplayName()) {
-            String displayName = clickedItem.getItemMeta().getDisplayName();
+            String displayName = clickedItem.getItemMeta().getDisplayName().replaceAll("§.", ""); // 強調表示用の文字列を除去
             for (Map<String, Object> item : items_2) {
-                if (displayName.equals("§f" + item.get("displayName"))) {
+                if (displayName.equals(item.get("displayName"))) {
+                    // 一致するアイテムを取得して処理を行います。
+                    String itemId = (String) item.get("itemID");
+                    // ここで itemId などのプロパティを使用して必要な処理を行うことができます。
                     player.sendMessage("You clicked on an item from Category Three with displayName: " + displayName);
                 }
             }
@@ -173,13 +177,15 @@ public class TradeBrowserMoveItemClickEvent implements Listener {
         Player player = (Player) event.getWhoClicked();
         ItemStack clickedItem = event.getCurrentItem();
         if (clickedItem != null && clickedItem.hasItemMeta() && clickedItem.getItemMeta().hasDisplayName()) {
-            String displayName = clickedItem.getItemMeta().getDisplayName();
+            String displayName = clickedItem.getItemMeta().getDisplayName().replaceAll("§.", ""); // 強調表示用の文字列を除去
             for (Map<String, Object> item : items_3) {
-                if (displayName.equals("§f" + item.get("displayName"))) {
+                if (displayName.equals(item.get("displayName"))) {
+                    // 一致するアイテムを取得して処理を行います。
+                    String itemId = (String) item.get("itemID");
+                    // ここで itemId などのプロパティを使用して必要な処理を行うことができます。
                     player.sendMessage("You clicked on an item from Category Four with displayName: " + displayName);
                 }
             }
         }
     }
-
 }
