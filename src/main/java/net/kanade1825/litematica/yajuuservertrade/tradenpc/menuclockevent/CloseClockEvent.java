@@ -13,6 +13,7 @@ public class CloseClockEvent implements Listener {
     public void onInventoryClick(InventoryClickEvent event) {
         var clickedInventory = event.getView();
         ItemStack clickedItem = event.getCurrentItem();
+        Player player = (Player) event.getWhoClicked();
 
         // クリックされたインベントリの名前が"TradeMenu"であることを確認
         if ("TradeMenu".equals(clickedInventory.getTitle())) {
@@ -23,20 +24,18 @@ public class CloseClockEvent implements Listener {
 
                 // クリックされたアイテムが"Close"という表示名の場合
                 if (displayName.equals("§c§lClose")) {
-                    Player player = (Player) event.getWhoClicked();
                     player.closeInventory();
-
                 } else if (displayName.equals("§a§lGo Back")) {
-                    Player Clicker = (Player) event.getWhoClicked();
                     Inventory inventory = new MainMenuInventoryGUI().setupAndReturnTradeMenu();
+                    player.openInventory(inventory);
+                    player.addScoreboardTag("TradeMenuOpen");
 
-
-                    Clicker.openInventory(inventory);
-
-                    Clicker.addScoreboardTag("TradeMenuOpen");
+                    // 新たに追加された3つのタグを削除
+                    player.removeScoreboardTag("TradeMenuOpen_CategoryTwo");
+                    player.removeScoreboardTag("TradeMenuOpen_CategoryThree");
+                    player.removeScoreboardTag("TradeMenuOpen_CategoryFour");
                 }
             }
         }
-
     }
 }

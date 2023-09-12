@@ -19,6 +19,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 public class TradeBrowserMoveItemClickEvent implements Listener {
 
@@ -31,29 +32,37 @@ public class TradeBrowserMoveItemClickEvent implements Listener {
             // 他のディレクトリを追加...
     );
 
+    private List<Map<String, Object>> items_1;  // For category 2
+    private List<Map<String, Object>> items_2;  // For category 3
+    private List<Map<String, Object>> items_3;  // For category 4
+
     @EventHandler
     public void onViewPositionClick(InventoryClickEvent event) {
         var clickedInventory = event.getView();
         ItemStack clickedItem = event.getCurrentItem();
+        Player player = (Player) event.getWhoClicked();
 
+        // "TradeMenu" タイトルのインベントリがクリックされたときの処理
         if ("TradeMenu".equals(clickedInventory.getTitle())) {
             if (clickedItem != null && clickedItem.hasItemMeta() && clickedItem.getItemMeta().hasDisplayName()) {
-                // 指定された色コードを削除
                 String displayName = clickedItem.getItemMeta().getDisplayName().replaceAll("§[6debce]§l", "");
 
                 for (String directory : directories) {
-                    // 指定されたディレクトリ内でクリックされたアイテムのdisplayNameに一致するJSONを検索します。
                     JSONObject matchedJson = findJsonWithDisplayName(directory, displayName);
-
-                    // 一致するJSONオブジェクトが見つかった場合の処理
                     if (matchedJson != null) {
-                        // 見つかったJSONに基づいて特定のアクションを実行します。
-                        handleMatchingJson((Player) event.getWhoClicked(), matchedJson);
-
-                        // 一致するJSONが見つかったので、他のディレクトリでの検索をスキップするためにループを終了します。
+                        handleMatchingJson(player, matchedJson);
                         break;
                     }
                 }
+            }
+
+            // 各カテゴリのGUIでの特定の位置のアイテムがクリックされたときの処理を実行
+            if (player.getScoreboardTags().contains("TradeMenuOpen_CategoryTwo")) {
+                handleCategoryTwoItemClick(event);
+            } else if (player.getScoreboardTags().contains("TradeMenuOpen_CategoryThree")) {
+                handleCategoryThreeItemClick(event);
+            } else if (player.getScoreboardTags().contains("TradeMenuOpen_CategoryFour")) {
+                handleCategoryFourItemClick(event);
             }
         }
     }
@@ -95,34 +104,80 @@ public class TradeBrowserMoveItemClickEvent implements Listener {
             player.addScoreboardTag("TradeMenuOpen");
 
 
-
             // 以下に、displayNameFromJsonとitemIDFromJsonを使用するコードを追加できます
 
+            //各メニューごとにタグを着けることにより識別する案
 
         } else if (categoryItemObj instanceof Number) {
             int categoryValue = ((Number) categoryItemObj).intValue();
             switch (categoryValue) {
                 case 2:
+                    player.addScoreboardTag("TradeMenuOpen");
+                    player.addScoreboardTag("TradeMenuOpen_CategoryTwo");
                     String filePath = (String) jsonObject.get("filePath");//パスを取得
                     Inventory inventory = new TradeBrowserCategoryNumberIsTwoInventoryGUI().setupAndReturnTradeMenu(filePath); // ファイルパスを渡す
                     player.openInventory(inventory);  // この行を追加して、プレイヤーにインベントリを表示
-                    player.addScoreboardTag("TradeMenuOpen");
                     break;
                 case 3:
+                    player.addScoreboardTag("TradeMenuOpen_CategoryThree");
+                    player.addScoreboardTag("TradeMenuOpen");
                     String filePath_Three = (String) jsonObject.get("filePath");//パスを取得
                     Inventory inventory_Three = new TradeBrowserCategoryNumberIsThreeInventoryGUI().setupAndReturnTradeMenu(filePath_Three); // ファイルパスを渡す
                     player.openInventory(inventory_Three);  // この行を追加して、プレイヤーにインベントリを表示
-                    player.addScoreboardTag("TradeMenuOpen");
                     break;
                 case 4:
+                    player.addScoreboardTag("TradeMenuOpen_CategoryFour");
+                    player.addScoreboardTag("TradeMenuOpen");
                     String filePath_Fore = (String) jsonObject.get("filePath");//パスを取得
                     Inventory inventory_Fore = new TradeBrowserCategoryNumberIsFourInventoryGUI().setupAndReturnTradeMenu(filePath_Fore); // ファイルパスを渡す
                     player.openInventory(inventory_Fore);  // この行を追加して、プレイヤーにインベントリを表示
-                    player.addScoreboardTag("TradeMenuOpen");
                     break;
                 default:
                     player.sendMessage("Invalid category number.");
             }
         }
     }
+
+
+    // ... (findJsonWithDisplayNameメソッドなどの既存のコード)
+
+    private void handleCategoryTwoItemClick(InventoryClickEvent event) {
+        Player player = (Player) event.getWhoClicked();
+        ItemStack clickedItem = event.getCurrentItem();
+        if (clickedItem != null && clickedItem.hasItemMeta() && clickedItem.getItemMeta().hasDisplayName()) {
+            String displayName = clickedItem.getItemMeta().getDisplayName();
+            for (Map<String, Object> item : items_1) {
+                if (displayName.equals("§f" + item.get("displayName"))) {
+                    player.sendMessage("You clicked on an item from Category Two with displayName: " + displayName);
+                }
+            }
+        }
+    }
+
+    private void handleCategoryThreeItemClick(InventoryClickEvent event) {
+        Player player = (Player) event.getWhoClicked();
+        ItemStack clickedItem = event.getCurrentItem();
+        if (clickedItem != null && clickedItem.hasItemMeta() && clickedItem.getItemMeta().hasDisplayName()) {
+            String displayName = clickedItem.getItemMeta().getDisplayName();
+            for (Map<String, Object> item : items_2) {
+                if (displayName.equals("§f" + item.get("displayName"))) {
+                    player.sendMessage("You clicked on an item from Category Three with displayName: " + displayName);
+                }
+            }
+        }
+    }
+
+    private void handleCategoryFourItemClick(InventoryClickEvent event) {
+        Player player = (Player) event.getWhoClicked();
+        ItemStack clickedItem = event.getCurrentItem();
+        if (clickedItem != null && clickedItem.hasItemMeta() && clickedItem.getItemMeta().hasDisplayName()) {
+            String displayName = clickedItem.getItemMeta().getDisplayName();
+            for (Map<String, Object> item : items_3) {
+                if (displayName.equals("§f" + item.get("displayName"))) {
+                    player.sendMessage("You clicked on an item from Category Four with displayName: " + displayName);
+                }
+            }
+        }
+    }
+
 }

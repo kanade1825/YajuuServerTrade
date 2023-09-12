@@ -5,5 +5,4 @@ import org.bukkit.event.Listener;
 public class TradeBrowserMultiInventoryClickEvent implements Listener {
 
 
-
 }
