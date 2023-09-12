@@ -112,25 +112,27 @@ public class TradeBrowserMoveItemClickEvent implements Listener {
             int categoryValue = ((Number) categoryItemObj).intValue();
             switch (categoryValue) {
                 case 2:
-                    player.addScoreboardTag("TradeMenuOpen");
-                    player.addScoreboardTag("TradeMenuOpen_CategoryTwo");
+
                     String filePath = (String) jsonObject.get("filePath");//パスを取得
                     Inventory inventory = new TradeBrowserCategoryNumberIsTwoInventoryGUI().setupAndReturnTradeMenu(filePath); // ファイルパスを渡す
                     player.openInventory(inventory);  // この行を追加して、プレイヤーにインベントリを表示
+                    player.addScoreboardTag("TradeMenuOpen");
+                    player.addScoreboardTag("TradeMenuOpen_CategoryTwo");
                     break;
                 case 3:
-                    player.addScoreboardTag("TradeMenuOpen_CategoryThree");
-                    player.addScoreboardTag("TradeMenuOpen");
+
                     String filePath_Three = (String) jsonObject.get("filePath");//パスを取得
                     Inventory inventory_Three = new TradeBrowserCategoryNumberIsThreeInventoryGUI().setupAndReturnTradeMenu(filePath_Three); // ファイルパスを渡す
                     player.openInventory(inventory_Three);  // この行を追加して、プレイヤーにインベントリを表示
+                    player.addScoreboardTag("TradeMenuOpen_CategoryThree");
+                    player.addScoreboardTag("TradeMenuOpen");
                     break;
                 case 4:
-                    player.addScoreboardTag("TradeMenuOpen_CategoryFour");
-                    player.addScoreboardTag("TradeMenuOpen");
                     String filePath_Fore = (String) jsonObject.get("filePath");//パスを取得
                     Inventory inventory_Fore = new TradeBrowserCategoryNumberIsFourInventoryGUI().setupAndReturnTradeMenu(filePath_Fore); // ファイルパスを渡す
-                    player.openInventory(inventory_Fore);  // この行を追加して、プレイヤーにインベントリを表示
+                    player.openInventory(inventory_Fore);
+                    player.addScoreboardTag("TradeMenuOpen_CategoryFour");
+                    player.addScoreboardTag("TradeMenuOpen");// この行を追加して、プレイヤーにインベントリを表示
                     break;
                 default:
                     player.sendMessage("Invalid category number.");
