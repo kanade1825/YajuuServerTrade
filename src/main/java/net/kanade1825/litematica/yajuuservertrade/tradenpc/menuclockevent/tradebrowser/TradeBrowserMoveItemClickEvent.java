@@ -141,17 +141,21 @@ public class TradeBrowserMoveItemClickEvent implements Listener {
         }
     }
 
+    private void openTradeControlGUI(Player player, String displayName, String itemId) {
+        Inventory inventory = new TradeBrowserTradeControlInventoryGUI(displayName, itemId).setupAndReturnTradeMenu();
+        player.openInventory(inventory);
+        player.addScoreboardTag("TradeMenuOpen");
+    }
+
     private void handleCategoryTwoItemClick(InventoryClickEvent event) {
         Player player = (Player) event.getWhoClicked();
         ItemStack clickedItem = event.getCurrentItem();
-        if (clickedItem != null && clickedItem.hasItemMeta() && clickedItem.getItemMeta().hasDisplayName()) {
-            String displayName = clickedItem.getItemMeta().getDisplayName().replaceAll("§.", ""); // 強調表示用の文字列を除去
+        if (isValidItem(clickedItem)) {
+            String displayName = clickedItem.getItemMeta().getDisplayName().replaceAll("§.", "");
             for (Map<String, Object> item : items_1) {
                 if (displayName.equals(item.get("displayName"))) {
-                    // 一致するアイテムを取得して処理を行います。
                     String itemId = (String) item.get("itemID");
-                    // ここで itemId などのプロパティを使用して必要な処理を行うことができます。
-                    player.sendMessage("You clicked on an item from Category Two with displayName: " + displayName);
+                    openTradeControlGUI(player, displayName, itemId);
                 }
             }
         }
@@ -160,14 +164,12 @@ public class TradeBrowserMoveItemClickEvent implements Listener {
     private void handleCategoryThreeItemClick(InventoryClickEvent event) {
         Player player = (Player) event.getWhoClicked();
         ItemStack clickedItem = event.getCurrentItem();
-        if (clickedItem != null && clickedItem.hasItemMeta() && clickedItem.getItemMeta().hasDisplayName()) {
-            String displayName = clickedItem.getItemMeta().getDisplayName().replaceAll("§.", ""); // 強調表示用の文字列を除去
+        if (isValidItem(clickedItem)) {
+            String displayName = clickedItem.getItemMeta().getDisplayName().replaceAll("§.", "");
             for (Map<String, Object> item : items_2) {
                 if (displayName.equals(item.get("displayName"))) {
-                    // 一致するアイテムを取得して処理を行います。
                     String itemId = (String) item.get("itemID");
-                    // ここで itemId などのプロパティを使用して必要な処理を行うことができます。
-                    player.sendMessage("You clicked on an item from Category Three with displayName: " + displayName);
+                    openTradeControlGUI(player, displayName, itemId);
                 }
             }
         }
@@ -176,16 +178,18 @@ public class TradeBrowserMoveItemClickEvent implements Listener {
     private void handleCategoryFourItemClick(InventoryClickEvent event) {
         Player player = (Player) event.getWhoClicked();
         ItemStack clickedItem = event.getCurrentItem();
-        if (clickedItem != null && clickedItem.hasItemMeta() && clickedItem.getItemMeta().hasDisplayName()) {
-            String displayName = clickedItem.getItemMeta().getDisplayName().replaceAll("§.", ""); // 強調表示用の文字列を除去
+        if (isValidItem(clickedItem)) {
+            String displayName = clickedItem.getItemMeta().getDisplayName().replaceAll("§.", "");
             for (Map<String, Object> item : items_3) {
                 if (displayName.equals(item.get("displayName"))) {
-                    // 一致するアイテムを取得して処理を行います。
                     String itemId = (String) item.get("itemID");
-                    // ここで itemId などのプロパティを使用して必要な処理を行うことができます。
-                    player.sendMessage("You clicked on an item from Category Four with displayName: " + displayName);
+                    openTradeControlGUI(player, displayName, itemId);
                 }
             }
         }
+    }
+
+    private boolean isValidItem(ItemStack clickedItem) {
+        return clickedItem != null && clickedItem.hasItemMeta() && clickedItem.getItemMeta().hasDisplayName();
     }
 }
