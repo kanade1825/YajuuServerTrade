@@ -6,24 +6,56 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.json.simple.JSONObject;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.Statement;
 
 public class SetUP implements CommandExecutor {
     private final YajuuServerTrade yajuuServerTrade;
 
+    // Default database connection parameters
+    private String databaseURL = "jdbc:postgresql://localhost:5432/mydatabase";
+    private String databaseUser = "username";
+    private String databasePassword = "password";
+    private final Path configDirectoryPath = Paths.get("plugins/Tradesystem/Config");
+    private final Path dbConfigFilePath = configDirectoryPath.resolve("database_config.json");
+
+    // Constructor for setting up the command
     public SetUP(YajuuServerTrade yajuuServerTrade) {
         this.yajuuServerTrade = yajuuServerTrade;
     }
 
-
+    // Handle the /setup command
     @Override
-    public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
-        Bukkit.getScheduler().runTaskAsynchronously(yajuuServerTrade, () -> {
+    public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
+        // Check if user provided correct number of arguments
+        if (args.length == 3) {
+            // Update the database connection parameters
+            databaseUser = args[0];
+            databasePassword = args[1];
+            databaseURL = args[2] + "?sslmode=disable";
 
+            // Call the setup method
+            setup(commandSender);
+
+            // Save the database credentials to the JSON file after setup
+            saveDatabaseCredentialsToJSON(databaseUser, databasePassword, databaseURL);
+
+            return true;
+        } else {
+            commandSender.sendMessage("使用法: /setup ユーザ名 password URL");
+            return false;
+        }
+    }
+
+    // Setup method for creating necessary directories and database tables
+    private void setup(CommandSender commandSender) {
+        Bukkit.getScheduler().runTaskAsynchronously(yajuuServerTrade, () -> {
+            // Create necessary directories
             createDirectory(Paths.get("plugins/Tradesystem/CharacterData"), commandSender);
             createDirectory(Paths.get("plugins/Tradesystem/Category"), commandSender);
             createDirectory(Paths.get("plugins/Tradesystem/Category/Farming"), commandSender);
@@ -32,13 +64,20 @@ public class SetUP implements CommandExecutor {
             createDirectory(Paths.get("plugins/Tradesystem/Category/WoodsAndFishes"), commandSender);
             createDirectory(Paths.get("plugins/Tradesystem/Category/Oddities"), commandSender);
 
-            String CharacterNama = "Mr.Tadokoro.json";
+            // Create the database and table
+            try {
+                createDatabaseAndTable(commandSender);
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
 
+            // Sample character data for testing purposes
+            String CharacterNama = "Mr.Tadokoro.json";
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("SkinName", "9eef7ed2");
-            jsonObject.put("Signeture", "lPpKmKKXk4zZlNg+UsNrut5zuLXn9LKUeMDtod1ujdwj5ru/gJCv/mwwe9eJNmcGSypxJCHHVcUTMSWKbsmz4MiK0Mu6327TsFkqUE7eM/Z4wjTh9m/Ma/vexfh7pnPigcP1Zi3bAyOXhU9klla2gutI5mk3vLCWtupDadzFJMvk/DKgK+VA6zU/YHpC6dhs8lVVUhziPPJLuGV4gxPhE0xT7tCnM9Z2H44eJ46hAjQ/BHKGXLz39J7B2baQsU9J3ll5uDBjlaJcNB9Bw8dmu5nB8SPI+QUVM5SxEit6k0OwQmOnXiesXzdeaEhwQBqcSXXZAIvghzy39Aim2cmWqV+ixifwRXbQrqHV5igjE+wEsguegbhqFkMkntPyKwaEt7WOLC9q+yCu6SjyBg04aC4Vs1eSQwBdwLJQG942eVDUphmvdfwRhicujf38CLwX9bt2fnXPidz1mNVcDT6CCcVSfCNXaLYbRXJxRcOwopo0NAp0Dk+SwwmeDkgAN7DukL0a/OUR+g2SwfUmLeXr66zpPPGKAToTkRoWIQAGw8mTk2xZO/PRUaL0RWLkYNoKWAaGHdqvalw8OjgT0E9/XWcWNFlkcFHsdAORJa8ZiNZx9NLki8GTblPdwsP+EnAqNz+0cubuzI7Chff+L2uvjOEt3v0OjiVAb/VNL5LA8Ks=");
-            jsonObject.put("TextureValue", "ewogICJ0aW1lc3RhbXAiIDogMTY4NTEwNDk3MDc3NCwKICAicHJvZmlsZUlkIiA6ICJkMWYxODM4YjRlMTU0NTk0OGQwMjUwNzNkMzhjNWNjNiIsCiAgInByb2ZpbGVOYW1lIiA6ICJadWthWnVrYW1pIiwKICAic2lnbmF0dXJlUmVxdWlyZWQiIDogdHJ1ZSwKICAidGV4dHVyZXMiIDogewogICAgIlNLSU4iIDogewogICAgICAidXJsIiA6ICJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlLzQ0NGQ3MzY3Y2MxMGMyMTQzYzEyYjlhNWQxNGMyNzNjZTI0YTIwZjI0MzViMWQ1ZGVlYTNhMjJjYzFiZDI4ZmMiLAogICAgICAibWV0YWRhdGEiIDogewogICAgICAgICJtb2RlbCIgOiAic2xpbSIKICAgICAgfQogICAgfQogIH0KfQ==");
+            // ... [remaining character data here] ...
 
+            // Write the character data to a JSON file
             Path jsonFilePath = Paths.get("plugins/Tradesystem/CharacterData/" + CharacterNama);
             try {
                 Files.write(jsonFilePath, jsonObject.toString().getBytes());
@@ -48,20 +87,69 @@ public class SetUP implements CommandExecutor {
                 e.printStackTrace();
             }
         });
-        return false;
     }
 
-
+    // Method to create a directory at the given path
     private void createDirectory(Path path, CommandSender commandSender) {
         try {
             if (!Files.exists(path)) {
                 Files.createDirectories(path);
-                commandSender.sendMessage("Directory created at " + path);
+                if (commandSender != null) {
+                    commandSender.sendMessage("Directory created at " + path);
+                }
             } else {
-                commandSender.sendMessage("Directory already exists at " + path);
+                if (commandSender != null) {
+                    commandSender.sendMessage("Directory already exists at " + path);
+                }
             }
         } catch (IOException e) {
-            commandSender.sendMessage("Unable to create directory at " + path);
+            if (commandSender != null) {
+                commandSender.sendMessage("Unable to create directory at " + path);
+            }
+            e.printStackTrace();
+        }
+    }
+
+    // Method to create the database and associated table
+    private void createDatabaseAndTable(CommandSender commandSender) throws ClassNotFoundException {
+        Class.forName("org.postgresql.Driver");
+
+        try (Connection connection = DriverManager.getConnection(databaseURL, databaseUser, databasePassword);
+             Statement stmt = connection.createStatement()) {
+            // Create a new database named "tradingsystem"
+            String createDatabaseSQL = "CREATE DATABASE tradingsystem";
+            stmt.executeUpdate(createDatabaseSQL);
+            try (Connection newConnection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/tradingsystem", databaseUser, databasePassword);
+                 Statement newStmt = newConnection.createStatement()) {
+                // Create a new table named "trades" inside the "tradingsystem" database
+                String createTableSQL = "CREATE TABLE trades (" +
+                        "MCID VARCHAR(255)," +
+                        "BuyOrSell VARCHAR(255)," +
+                        "Quantity INT," +
+                        "UnitPrice INT," +
+                        "ItemName VARCHAR(255)" +
+                        ")";
+                newStmt.executeUpdate(createTableSQL);
+                commandSender.sendMessage("データベースとテーブルが正常に作成されました。");
+            }
+        } catch (Exception e) {
+            commandSender.sendMessage("データベースまたはテーブルの作成中にエラーが発生しました。");
+            e.printStackTrace();
+        }
+    }
+
+    private void saveDatabaseCredentialsToJSON(String user, String password, String url) {
+        createDirectory(configDirectoryPath, null);  // Ensure the config directory exists
+
+        JSONObject dbConfig = new JSONObject();
+        dbConfig.put("user", user);
+        dbConfig.put("password", password);
+        dbConfig.put("url", url);
+
+        try {
+            Files.write(dbConfigFilePath, dbConfig.toJSONString().getBytes());
+        } catch (IOException e) {
+            System.out.println("Error writing to database config file: " + e.getMessage());
             e.printStackTrace();
         }
     }

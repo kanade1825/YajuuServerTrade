@@ -79,15 +79,16 @@ public final class YajuuServerTrade extends JavaPlugin {
         pluginManager.registerEvents(new TradeBrowserWoodsAndFishesClickEvent(), this);
         pluginManager.registerEvents(new TradeBrowserOdditiesClickEvent(), this);
         pluginManager.registerEvents(new TradeBrowserMoveItemClickEvent(), this);
-        pluginManager.registerEvents(new TradeBrowserBuyInstantlyClickEvent(),this);
-        pluginManager.registerEvents(new TradeBrowserCreateBuyOrderClickEvent(),this);
-        pluginManager.registerEvents(new TradeBrowserCreateSellOfferClickEvent(),this);
+        pluginManager.registerEvents(new TradeBrowserBuyInstantlyClickEvent(), this);
+        pluginManager.registerEvents(new TradeBrowserCreateBuyOrderClickEvent(), this);
+        pluginManager.registerEvents(new TradeBrowserCreateSellOfferClickEvent(), this);
 
 
         new SpawnTradeNPC(this);
 
 
         getLogger().info(
+
                 "　　　　　 /＼　　　 ／ヽ\n" +
                         "　　 　 　 {／￣￣￣｀ヽ!\n" +
                         "　　　　 ∠＿＿╋＿＿ｊ\n" +

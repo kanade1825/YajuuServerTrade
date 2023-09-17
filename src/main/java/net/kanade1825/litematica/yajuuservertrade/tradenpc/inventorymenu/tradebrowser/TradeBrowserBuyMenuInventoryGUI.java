@@ -45,11 +45,10 @@ public class TradeBrowserBuyMenuInventoryGUI {
         inv.setItem(12, itemFor12thSlot);
         inv.setItem(13, blackGlass);
 
-        inv.setItem(14, createCustomItem(Material.CHEST,"§a§lFill My Inventory!",Collections.singletonList("")));
+        inv.setItem(14, createCustomItem(Material.CHEST, "§a§lFill My Inventory!", Collections.singletonList("")));
         inv.setItem(15, blackGlass);
         inv.setItem(16, createCustomItem(Material.OAK_SIGN, "§a§lCustom Amount", Collections.singletonList("§fComming soon")));
         inv.setItem(17, blackGlass);
-
 
 
         // 三列目: 全てを埋める

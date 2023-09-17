@@ -1,6 +1,5 @@
 package net.kanade1825.litematica.yajuuservertrade.tradenpc.menuclockevent.tradebrowser;
 
-import net.kanade1825.litematica.yajuuservertrade.tradenpc.inventorymenu.tradebrowser.TradeBrowserCreateBuyOrderInventoryGUI;
 import net.kanade1825.litematica.yajuuservertrade.tradenpc.inventorymenu.tradebrowser.TradeBrowserCreateSellOfferInventoryGUI;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -37,7 +36,6 @@ public class TradeBrowserCreateSellOfferClickEvent implements Listener {
             }
         }
     }
-
 
 
 }
