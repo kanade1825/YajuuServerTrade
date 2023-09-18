@@ -141,6 +141,9 @@ public class SetUP implements CommandExecutor {
     private void saveDatabaseCredentialsToJSON(String user, String password, String url) {
         createDirectory(configDirectoryPath, null);  // Ensure the config directory exists
 
+        // Update the URL to point to the "tradingsystem" database
+        url = "jdbc:postgresql://localhost:5432/tradingsystem";
+
         JSONObject dbConfig = new JSONObject();
         dbConfig.put("user", user);
         dbConfig.put("password", password);

@@ -17,11 +17,20 @@ import org.json.simple.parser.ParseException;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.sql.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 public class TradeBrowserMoveItemClickEvent implements Listener {
+
+    private static final Path DB_CONFIG_PATH = Paths.get("plugins/Tradesystem/Config/database_config.json");
+    private String dbURL;
+    private String dbUser;
+    private String dbPassword;
 
     private final List<String> directories = Arrays.asList(
             "plugins/Tradesystem/Category/Mining",
@@ -29,12 +38,24 @@ public class TradeBrowserMoveItemClickEvent implements Listener {
             "plugins/Tradesystem/Category/Combat",
             "plugins/Tradesystem/Category/Oddities",
             "plugins/Tradesystem/Category/WoodsAndFishes"
-            // 他のディレクトリを追加...
     );
 
     private List<Map<String, Object>> items_1;  // For category 2
     private List<Map<String, Object>> items_2;  // For category 3
     private List<Map<String, Object>> items_3;  // For category 4
+
+    public TradeBrowserMoveItemClickEvent() {
+        try {
+            Class.forName("org.postgresql.Driver");
+
+            JSONObject dbConfig = (JSONObject) new JSONParser().parse(Files.newBufferedReader(DB_CONFIG_PATH));
+            dbURL = (String) dbConfig.get("databaseURL");
+            dbUser = (String) dbConfig.get("databaseUser");
+            dbPassword = (String) dbConfig.get("databasePassword");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     @EventHandler
     public void onViewPositionClick(InventoryClickEvent event) {
@@ -42,7 +63,6 @@ public class TradeBrowserMoveItemClickEvent implements Listener {
         ItemStack clickedItem = event.getCurrentItem();
         Player player = (Player) event.getWhoClicked();
 
-        // "TradeMenu" タイトルのインベントリがクリックされたときの処理
         if ("TradeMenu".equals(clickedInventory.getTitle())) {
             if (clickedItem != null && clickedItem.hasItemMeta() && !clickedItem.getItemMeta().getDisplayName().equals("DisplayItem")) {
                 String displayName = clickedItem.getItemMeta().getDisplayName().replaceAll("§.", "");
@@ -56,7 +76,6 @@ public class TradeBrowserMoveItemClickEvent implements Listener {
                 }
             }
 
-            // 各カテゴリのGUIでの特定の位置のアイテムがクリックされたときの処理を実行
             if (player.getScoreboardTags().contains("TradeMenuOpen_CategoryTwo")) {
                 handleCategoryTwoItemClick(event);
             } else if (player.getScoreboardTags().contains("TradeMenuOpen_CategoryThree")) {
@@ -66,6 +85,7 @@ public class TradeBrowserMoveItemClickEvent implements Listener {
             }
         }
     }
+
 
     private JSONObject findJsonWithDisplayName(String directoryPath, String displayName) {
         File directory = new File(directoryPath);
@@ -78,8 +98,7 @@ public class TradeBrowserMoveItemClickEvent implements Listener {
                         try (FileReader reader = new FileReader(file)) {
                             JSONObject jsonObject = (JSONObject) parser.parse(reader);
                             if (displayName.equals(jsonObject.get("displayName"))) {
-                                jsonObject.put("filePath", file.getAbsolutePath()); // ファイルの相対パスを追加
-                                // サブアイテムが存在する場合、それを追加します。
+                                jsonObject.put("filePath", file.getAbsolutePath());
                                 if (jsonObject.containsKey("items")) {
                                     jsonObject.put("subItems", jsonObject.get("items"));
                                 }
@@ -98,47 +117,86 @@ public class TradeBrowserMoveItemClickEvent implements Listener {
     private void handleMatchingJson(Player player, JSONObject jsonObject) {
         Object categoryItemObj = jsonObject.get("isCategoryItem");
         if (categoryItemObj instanceof Boolean) {
-
-            // JSONからdisplayNameとitemIDを取得して変数に格納
-            String displayNameFromJson = (String) jsonObject.get("displayName");
-            String itemIDFromJson = (String) jsonObject.get("itemID");
-
-            Inventory inventory = new TradeBrowserTradeControlInventoryGUI(displayNameFromJson, itemIDFromJson).setupAndReturnTradeMenu(); // ファイルパスを渡す
-            player.openInventory(inventory);  // この行を追加して、プレイヤーにインベントリを表示
-            player.addScoreboardTag("TradeMenuOpen");
-            // 以下に、displayNameFromJsonとitemIDFromJsonを使用するコードを追加できます
-
+            if (!((Boolean) categoryItemObj)) {
+                String displayNameFromJson = (String) jsonObject.get("displayName");
+                String itemIdFromJson = (String) jsonObject.get("itemID");  // Added this line to get the itemID from the json
+                Inventory inventory = new TradeBrowserTradeControlInventoryGUI(displayNameFromJson, itemIdFromJson).setupAndReturnTradeMenu();
+                player.openInventory(inventory);
+                player.addScoreboardTag("TradeMenuOpen");
+            }
         } else if (categoryItemObj instanceof Number) {
             int categoryValue = ((Number) categoryItemObj).intValue();
             switch (categoryValue) {
                 case 2:
                     items_1 = (List<Map<String, Object>>) jsonObject.get("subItems");
-                    String filePath = (String) jsonObject.get("filePath");//パスを取得
-                    Inventory inventory = new TradeBrowserCategoryNumberIsTwoInventoryGUI().setupAndReturnTradeMenu(filePath); // ファイルパスを渡す
-                    player.openInventory(inventory);  // この行を追加して、プレイヤーにインベントリを表示
-                    player.addScoreboardTag("TradeMenuOpen");
+                    for (Map<String, Object> item : items_1) {
+                        if (!isInDatabase(player.getName(), (String) item.get("itemID"))) {
+                            int initialValue = item.containsKey("initialValue") ? ((Number) item.get("initialValue")).intValue() : 0;
+                            insertIntoDatabase(player.getName(), "Buy", initialValue, 0, (String) item.get("itemID"));
+                            insertIntoDatabase(player.getName(), "Sell", initialValue, 0, (String) item.get("itemID"));
+                        }
+                    }
+                    String filePath = (String) jsonObject.get("filePath");
+                    Inventory inventory = new TradeBrowserCategoryNumberIsTwoInventoryGUI().setupAndReturnTradeMenu(filePath);
+                    player.openInventory(inventory);
                     player.addScoreboardTag("TradeMenuOpen_CategoryTwo");
                     break;
                 case 3:
                     items_2 = (List<Map<String, Object>>) jsonObject.get("subItems");
-                    String filePath_Three = (String) jsonObject.get("filePath");//パスを取得
-                    Inventory inventory_Three = new TradeBrowserCategoryNumberIsThreeInventoryGUI().setupAndReturnTradeMenu(filePath_Three); // ファイルパスを渡す
-                    player.openInventory(inventory_Three);  // この行を追加して、プレイヤーにインベントリを表示
+                    for (Map<String, Object> item : items_2) {
+                        if (!isInDatabase(player.getName(), (String) item.get("itemID"))) {
+                            int initialValue = item.containsKey("initialValue") ? ((Number) item.get("initialValue")).intValue() : 0;
+                            insertIntoDatabase(player.getName(), "Buy", initialValue, 0, (String) item.get("itemID"));
+                            insertIntoDatabase(player.getName(), "Sell", initialValue, 0, (String) item.get("itemID"));
+                        }
+                    }
+                    String filePath_Three = (String) jsonObject.get("filePath");
+                    Inventory inventory_Three = new TradeBrowserCategoryNumberIsThreeInventoryGUI().setupAndReturnTradeMenu(filePath_Three);
+                    player.openInventory(inventory_Three);
                     player.addScoreboardTag("TradeMenuOpen_CategoryThree");
-                    player.addScoreboardTag("TradeMenuOpen");
                     break;
                 case 4:
                     items_3 = (List<Map<String, Object>>) jsonObject.get("subItems");
-                    String filePath_Fore = (String) jsonObject.get("filePath");//パスを取得
-                    Inventory inventory_Fore = new TradeBrowserCategoryNumberIsFourInventoryGUI().setupAndReturnTradeMenu(filePath_Fore); // ファイルパスを渡す
+                    for (Map<String, Object> item : items_3) {
+                        if (!isInDatabase(player.getName(), (String) item.get("itemID"))) {
+                            int initialValue = item.containsKey("initialValue") ? ((Number) item.get("initialValue")).intValue() : 0;
+                            insertIntoDatabase(player.getName(), "Buy", initialValue, 0, (String) item.get("itemID"));
+                            insertIntoDatabase(player.getName(), "Sell", initialValue, 0, (String) item.get("itemID"));
+                        }
+                    }
+                    String filePath_Fore = (String) jsonObject.get("filePath");
+                    Inventory inventory_Fore = new TradeBrowserCategoryNumberIsFourInventoryGUI().setupAndReturnTradeMenu(filePath_Fore);
                     player.openInventory(inventory_Fore);
                     player.addScoreboardTag("TradeMenuOpen_CategoryFour");
-                    player.addScoreboardTag("TradeMenuOpen");// この行を追加して、プレイヤーにインベントリを表示
                     break;
                 default:
                     player.sendMessage("Invalid category number.");
             }
         }
+    }
+
+    private boolean isInDatabase(String McId, String displayName) {
+        // Check if the item with the given McId and DisplayName already exists in the database
+        try {
+            JSONObject dbConfig = (JSONObject) new JSONParser().parse(Files.newBufferedReader(DB_CONFIG_PATH));
+            String url = (String) dbConfig.get("url");
+            String user = (String) dbConfig.get("user");
+            String password = (String) dbConfig.get("password");
+
+            try (Connection connection = DriverManager.getConnection(url, user, password);
+                 Statement stmt = connection.createStatement()) {
+                String query = String.format("SELECT COUNT(*) FROM trades WHERE MCID = '%s' AND itemname = '%s'", McId, displayName);
+                ResultSet rs = stmt.executeQuery(query);
+                if (rs.next() && rs.getInt(1) > 0) {
+                    return true;
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        } catch (IOException | ParseException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     private void openTradeControlGUI(Player player, String displayName, String itemId) {
@@ -192,4 +250,25 @@ public class TradeBrowserMoveItemClickEvent implements Listener {
     private boolean isValidItem(ItemStack clickedItem) {
         return clickedItem != null && clickedItem.hasItemMeta() && clickedItem.getItemMeta().hasDisplayName();
     }
+
+    private void insertIntoDatabase(String McId, String BuyOrSell, int Quantity, int UnitPrice, String displayName) {
+        try {
+            JSONObject dbConfig = (JSONObject) new JSONParser().parse(Files.newBufferedReader(DB_CONFIG_PATH));
+            String url = (String) dbConfig.get("url");
+            String user = (String) dbConfig.get("user");
+            String password = (String) dbConfig.get("password");
+
+            try (Connection connection = DriverManager.getConnection(url, user, password);
+                 Statement stmt = connection.createStatement()) {
+                String query = String.format("INSERT INTO trades (MCID, BuyOrSell, Quantity, UnitPrice, itemname) VALUES ('%s', '%s', %d, %d, '%s')",
+                        McId, BuyOrSell, Quantity, UnitPrice, displayName);
+                stmt.executeUpdate(query);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        } catch (IOException | ParseException e) {
+            e.printStackTrace();
+        }
+    }
 }
+
