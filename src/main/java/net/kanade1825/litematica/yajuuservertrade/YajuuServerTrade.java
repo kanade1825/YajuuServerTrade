@@ -18,6 +18,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -25,14 +27,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
-
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.charset.StandardCharsets;
 
 public final class YajuuServerTrade extends JavaPlugin {
 
@@ -132,6 +126,7 @@ public final class YajuuServerTrade extends JavaPlugin {
         getLogger().info("system stopped !");
         // Plugin shutdown logic
     }
+
     public JSONObject getDatabaseConfig() {
         Path dbConfigFilePath = Paths.get("plugins/Tradesystem/Config/database_config.json");
         try {

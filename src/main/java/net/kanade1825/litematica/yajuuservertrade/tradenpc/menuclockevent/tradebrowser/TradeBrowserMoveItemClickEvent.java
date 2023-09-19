@@ -28,10 +28,6 @@ import java.util.Map;
 public class TradeBrowserMoveItemClickEvent implements Listener {
 
     private static final Path DB_CONFIG_PATH = Paths.get("plugins/Tradesystem/Config/database_config.json");
-    private String dbURL;
-    private String dbUser;
-    private String dbPassword;
-
     private final List<String> directories = Arrays.asList(
             "plugins/Tradesystem/Category/Mining",
             "plugins/Tradesystem/Category/Farming",
@@ -39,7 +35,9 @@ public class TradeBrowserMoveItemClickEvent implements Listener {
             "plugins/Tradesystem/Category/Oddities",
             "plugins/Tradesystem/Category/WoodsAndFishes"
     );
-
+    private String dbURL;
+    private String dbUser;
+    private String dbPassword;
     private List<Map<String, Object>> items_1;  // For category 2
     private List<Map<String, Object>> items_2;  // For category 3
     private List<Map<String, Object>> items_3;  // For category 4
@@ -49,9 +47,9 @@ public class TradeBrowserMoveItemClickEvent implements Listener {
             Class.forName("org.postgresql.Driver");
 
             JSONObject dbConfig = (JSONObject) new JSONParser().parse(Files.newBufferedReader(DB_CONFIG_PATH));
-            dbURL = (String) dbConfig.get("databaseURL");
-            dbUser = (String) dbConfig.get("databaseUser");
-            dbPassword = (String) dbConfig.get("databasePassword");
+            dbURL = (String) dbConfig.get("url");  // "databaseURL" ではなく "url" です
+            dbUser = (String) dbConfig.get("user");  // "databaseUser" ではなく "user" です
+            dbPassword = (String) dbConfig.get("password");  // "databasePassword" ではなく "password" です
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -119,10 +117,12 @@ public class TradeBrowserMoveItemClickEvent implements Listener {
         if (categoryItemObj instanceof Boolean) {
             if (!((Boolean) categoryItemObj)) {
                 String displayNameFromJson = (String) jsonObject.get("displayName");
-                String itemIdFromJson = (String) jsonObject.get("itemID");  // Added this line to get the itemID from the json
+                String itemIdFromJson = (String) jsonObject.get("itemID");
+                addOrUpdateInDatabase(player, displayNameFromJson, itemIdFromJson);
                 Inventory inventory = new TradeBrowserTradeControlInventoryGUI(displayNameFromJson, itemIdFromJson).setupAndReturnTradeMenu();
                 player.openInventory(inventory);
                 player.addScoreboardTag("TradeMenuOpen");
+
             }
         } else if (categoryItemObj instanceof Number) {
             int categoryValue = ((Number) categoryItemObj).intValue();
@@ -130,11 +130,8 @@ public class TradeBrowserMoveItemClickEvent implements Listener {
                 case 2:
                     items_1 = (List<Map<String, Object>>) jsonObject.get("subItems");
                     for (Map<String, Object> item : items_1) {
-                        if (!isInDatabase(player.getName(), (String) item.get("itemID"))) {
-                            int initialValue = item.containsKey("initialValue") ? ((Number) item.get("initialValue")).intValue() : 0;
-                            insertIntoDatabase(player.getName(), "Buy", initialValue, 0, (String) item.get("itemID"));
-                            insertIntoDatabase(player.getName(), "Sell", initialValue, 0, (String) item.get("itemID"));
-                        }
+                        String itemName = (String) item.get("itemID");
+                        addOrUpdateInDatabase(player, (String) item.get("displayName"), itemName);
                     }
                     String filePath = (String) jsonObject.get("filePath");
                     Inventory inventory = new TradeBrowserCategoryNumberIsTwoInventoryGUI().setupAndReturnTradeMenu(filePath);
@@ -144,11 +141,8 @@ public class TradeBrowserMoveItemClickEvent implements Listener {
                 case 3:
                     items_2 = (List<Map<String, Object>>) jsonObject.get("subItems");
                     for (Map<String, Object> item : items_2) {
-                        if (!isInDatabase(player.getName(), (String) item.get("itemID"))) {
-                            int initialValue = item.containsKey("initialValue") ? ((Number) item.get("initialValue")).intValue() : 0;
-                            insertIntoDatabase(player.getName(), "Buy", initialValue, 0, (String) item.get("itemID"));
-                            insertIntoDatabase(player.getName(), "Sell", initialValue, 0, (String) item.get("itemID"));
-                        }
+                        String itemName = (String) item.get("itemID");
+                        addOrUpdateInDatabase(player, (String) item.get("displayName"), itemName);
                     }
                     String filePath_Three = (String) jsonObject.get("filePath");
                     Inventory inventory_Three = new TradeBrowserCategoryNumberIsThreeInventoryGUI().setupAndReturnTradeMenu(filePath_Three);
@@ -158,11 +152,8 @@ public class TradeBrowserMoveItemClickEvent implements Listener {
                 case 4:
                     items_3 = (List<Map<String, Object>>) jsonObject.get("subItems");
                     for (Map<String, Object> item : items_3) {
-                        if (!isInDatabase(player.getName(), (String) item.get("itemID"))) {
-                            int initialValue = item.containsKey("initialValue") ? ((Number) item.get("initialValue")).intValue() : 0;
-                            insertIntoDatabase(player.getName(), "Buy", initialValue, 0, (String) item.get("itemID"));
-                            insertIntoDatabase(player.getName(), "Sell", initialValue, 0, (String) item.get("itemID"));
-                        }
+                        String itemName = (String) item.get("itemID");
+                        addOrUpdateInDatabase(player, (String) item.get("displayName"), itemName);
                     }
                     String filePath_Fore = (String) jsonObject.get("filePath");
                     Inventory inventory_Fore = new TradeBrowserCategoryNumberIsFourInventoryGUI().setupAndReturnTradeMenu(filePath_Fore);
@@ -175,25 +166,22 @@ public class TradeBrowserMoveItemClickEvent implements Listener {
         }
     }
 
+    private void addOrUpdateInDatabase(Player player, String displayName, String itemId) {
+        if (!isInDatabase(player.getName(), displayName)) {
+            int initialValue = 0; // default value, you may adjust this
+            insertIntoDatabase(player.getName(), "Buy", initialValue, 0, displayName);
+            insertIntoDatabase(player.getName(), "Sell", initialValue, 0, displayName);
+        }
+    }
+
     private boolean isInDatabase(String McId, String displayName) {
         // Check if the item with the given McId and DisplayName already exists in the database
-        try {
-            JSONObject dbConfig = (JSONObject) new JSONParser().parse(Files.newBufferedReader(DB_CONFIG_PATH));
-            String url = (String) dbConfig.get("url");
-            String user = (String) dbConfig.get("user");
-            String password = (String) dbConfig.get("password");
-
-            try (Connection connection = DriverManager.getConnection(url, user, password);
-                 Statement stmt = connection.createStatement()) {
-                String query = String.format("SELECT COUNT(*) FROM trades WHERE MCID = '%s' AND itemname = '%s'", McId, displayName);
-                ResultSet rs = stmt.executeQuery(query);
-                if (rs.next() && rs.getInt(1) > 0) {
-                    return true;
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        } catch (IOException | ParseException e) {
+        try (Connection connection = DriverManager.getConnection(dbURL, dbUser, dbPassword);
+             Statement stmt = connection.createStatement()) {
+            String query = String.format("SELECT COUNT(*) FROM trades WHERE MCID = '%s' AND itemname = '%s'", McId, displayName);
+            ResultSet rs = stmt.executeQuery(query);
+            return rs.next() && rs.getInt(1) > 0;
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return false;
@@ -252,21 +240,12 @@ public class TradeBrowserMoveItemClickEvent implements Listener {
     }
 
     private void insertIntoDatabase(String McId, String BuyOrSell, int Quantity, int UnitPrice, String displayName) {
-        try {
-            JSONObject dbConfig = (JSONObject) new JSONParser().parse(Files.newBufferedReader(DB_CONFIG_PATH));
-            String url = (String) dbConfig.get("url");
-            String user = (String) dbConfig.get("user");
-            String password = (String) dbConfig.get("password");
-
-            try (Connection connection = DriverManager.getConnection(url, user, password);
-                 Statement stmt = connection.createStatement()) {
-                String query = String.format("INSERT INTO trades (MCID, BuyOrSell, Quantity, UnitPrice, itemname) VALUES ('%s', '%s', %d, %d, '%s')",
-                        McId, BuyOrSell, Quantity, UnitPrice, displayName);
-                stmt.executeUpdate(query);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        } catch (IOException | ParseException e) {
+        try (Connection connection = DriverManager.getConnection(dbURL, dbUser, dbPassword);
+             Statement stmt = connection.createStatement()) {
+            String query = String.format("INSERT INTO trades (MCID, BuyOrSell, Quantity, UnitPrice, itemname) VALUES ('%s', '%s', %d, %d, '%s')",
+                    McId, BuyOrSell, Quantity, UnitPrice, displayName);
+            stmt.executeUpdate(query);
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }

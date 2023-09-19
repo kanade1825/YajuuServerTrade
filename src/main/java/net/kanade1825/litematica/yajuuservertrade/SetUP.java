@@ -6,6 +6,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.json.simple.JSONObject;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -16,13 +17,12 @@ import java.sql.Statement;
 
 public class SetUP implements CommandExecutor {
     private final YajuuServerTrade yajuuServerTrade;
-
+    private final Path configDirectoryPath = Paths.get("plugins/Tradesystem/Config");
+    private final Path dbConfigFilePath = configDirectoryPath.resolve("database_config.json");
     // Default database connection parameters
     private String databaseURL = "jdbc:postgresql://localhost:5432/mydatabase";
     private String databaseUser = "username";
     private String databasePassword = "password";
-    private final Path configDirectoryPath = Paths.get("plugins/Tradesystem/Config");
-    private final Path dbConfigFilePath = configDirectoryPath.resolve("database_config.json");
 
     // Constructor for setting up the command
     public SetUP(YajuuServerTrade yajuuServerTrade) {
