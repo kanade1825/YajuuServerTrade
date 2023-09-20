@@ -47,9 +47,9 @@ public class TradeBrowserMoveItemClickEvent implements Listener {
             Class.forName("org.postgresql.Driver");
 
             JSONObject dbConfig = (JSONObject) new JSONParser().parse(Files.newBufferedReader(DB_CONFIG_PATH));
-            dbURL = (String) dbConfig.get("url");  // "databaseURL" ではなく "url" です
-            dbUser = (String) dbConfig.get("user");  // "databaseUser" ではなく "user" です
-            dbPassword = (String) dbConfig.get("password");  // "databasePassword" ではなく "password" です
+            dbURL = (String) dbConfig.get("url");
+            dbUser = (String) dbConfig.get("user");
+            dbPassword = (String) dbConfig.get("password");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -60,6 +60,11 @@ public class TradeBrowserMoveItemClickEvent implements Listener {
         var clickedInventory = event.getView();
         ItemStack clickedItem = event.getCurrentItem();
         Player player = (Player) event.getWhoClicked();
+
+        // If the player has the TradeMenuOpen tag, cancel any inventory interactions to prevent items from being taken out or moved.
+        if (player.getScoreboardTags().contains("TradeMenuOpen")) {
+            event.setCancelled(true);
+        }
 
         if ("TradeMenu".equals(clickedInventory.getTitle())) {
             if (clickedItem != null && clickedItem.hasItemMeta() && !clickedItem.getItemMeta().getDisplayName().equals("DisplayItem")) {
@@ -118,47 +123,54 @@ public class TradeBrowserMoveItemClickEvent implements Listener {
             if (!((Boolean) categoryItemObj)) {
                 String displayNameFromJson = (String) jsonObject.get("displayName");
                 String itemIdFromJson = (String) jsonObject.get("itemID");
-                addOrUpdateInDatabase(player, displayNameFromJson, itemIdFromJson);
+                addOrUpdateInDatabase(player, displayNameFromJson, itemIdFromJson, jsonObject);
+
                 Inventory inventory = new TradeBrowserTradeControlInventoryGUI(displayNameFromJson, itemIdFromJson).setupAndReturnTradeMenu();
                 player.openInventory(inventory);
                 player.addScoreboardTag("TradeMenuOpen");
-
             }
         } else if (categoryItemObj instanceof Number) {
             int categoryValue = ((Number) categoryItemObj).intValue();
+            List<Map<String, Object>> items = (List<Map<String, Object>>) jsonObject.get("subItems");
+
             switch (categoryValue) {
                 case 2:
-                    items_1 = (List<Map<String, Object>>) jsonObject.get("subItems");
-                    for (Map<String, Object> item : items_1) {
-                        String itemName = (String) item.get("itemID");
-                        addOrUpdateInDatabase(player, (String) item.get("displayName"), itemName);
-                    }
-                    String filePath = (String) jsonObject.get("filePath");
-                    Inventory inventory = new TradeBrowserCategoryNumberIsTwoInventoryGUI().setupAndReturnTradeMenu(filePath);
-                    player.openInventory(inventory);
-                    player.addScoreboardTag("TradeMenuOpen_CategoryTwo");
+                    items_1 = items;  // Set the items_1 list
                     break;
                 case 3:
-                    items_2 = (List<Map<String, Object>>) jsonObject.get("subItems");
-                    for (Map<String, Object> item : items_2) {
-                        String itemName = (String) item.get("itemID");
-                        addOrUpdateInDatabase(player, (String) item.get("displayName"), itemName);
-                    }
-                    String filePath_Three = (String) jsonObject.get("filePath");
-                    Inventory inventory_Three = new TradeBrowserCategoryNumberIsThreeInventoryGUI().setupAndReturnTradeMenu(filePath_Three);
-                    player.openInventory(inventory_Three);
-                    player.addScoreboardTag("TradeMenuOpen_CategoryThree");
+                    items_2 = items;  // Set the items_2 list
                     break;
                 case 4:
-                    items_3 = (List<Map<String, Object>>) jsonObject.get("subItems");
-                    for (Map<String, Object> item : items_3) {
-                        String itemName = (String) item.get("itemID");
-                        addOrUpdateInDatabase(player, (String) item.get("displayName"), itemName);
-                    }
-                    String filePath_Fore = (String) jsonObject.get("filePath");
-                    Inventory inventory_Fore = new TradeBrowserCategoryNumberIsFourInventoryGUI().setupAndReturnTradeMenu(filePath_Fore);
-                    player.openInventory(inventory_Fore);
+                    items_3 = items;  // Set the items_3 list
+                    break;
+            }
+
+            for (Map<String, Object> item : items) {
+                String itemName = (String) item.get("itemID");
+                JSONObject itemJsonObject = new JSONObject(item);  // サブアイテムの JSON オブジェクトを作成
+                addOrUpdateInDatabase(player, (String) item.get("displayName"), itemName, itemJsonObject);  // サブアイテムの JSON オブジェクトを渡す
+            }
+
+            String filePath = (String) jsonObject.get("filePath");
+            Inventory inventory;
+            switch (categoryValue) {
+                case 2:
+                    inventory = new TradeBrowserCategoryNumberIsTwoInventoryGUI().setupAndReturnTradeMenu(filePath);
+                    player.openInventory(inventory);
+                    player.addScoreboardTag("TradeMenuOpen_CategoryTwo");
+                    player.addScoreboardTag("TradeMenuOpen");
+                    break;
+                case 3:
+                    inventory = new TradeBrowserCategoryNumberIsThreeInventoryGUI().setupAndReturnTradeMenu(filePath);
+                    player.openInventory(inventory);
+                    player.addScoreboardTag("TradeMenuOpen_CategoryThree");
+                    player.addScoreboardTag("TradeMenuOpen");
+                    break;
+                case 4:
+                    inventory = new TradeBrowserCategoryNumberIsFourInventoryGUI().setupAndReturnTradeMenu(filePath);
+                    player.openInventory(inventory);
                     player.addScoreboardTag("TradeMenuOpen_CategoryFour");
+                    player.addScoreboardTag("TradeMenuOpen");
                     break;
                 default:
                     player.sendMessage("Invalid category number.");
@@ -166,16 +178,16 @@ public class TradeBrowserMoveItemClickEvent implements Listener {
         }
     }
 
-    private void addOrUpdateInDatabase(Player player, String displayName, String itemId) {
+
+    private void addOrUpdateInDatabase(Player player, String displayName, String itemId, JSONObject jsonObject) {
+        int initialValue = getInitialValueFromJson(jsonObject);
         if (!isInDatabase(player.getName(), displayName)) {
-            int initialValue = 0; // default value, you may adjust this
-            insertIntoDatabase(player.getName(), "Buy", initialValue, 0, displayName);
-            insertIntoDatabase(player.getName(), "Sell", initialValue, 0, displayName);
+            insertIntoDatabase(player.getName(), "Buy", 10, initialValue, displayName);
+            insertIntoDatabase(player.getName(), "Sell", 10, initialValue, displayName);
         }
     }
 
     private boolean isInDatabase(String McId, String displayName) {
-        // Check if the item with the given McId and DisplayName already exists in the database
         try (Connection connection = DriverManager.getConnection(dbURL, dbUser, dbPassword);
              Statement stmt = connection.createStatement()) {
             String query = String.format("SELECT COUNT(*) FROM trades WHERE MCID = '%s' AND itemname = '%s'", McId, displayName);
@@ -249,5 +261,14 @@ public class TradeBrowserMoveItemClickEvent implements Listener {
             e.printStackTrace();
         }
     }
+
+    private int getInitialValueFromJson(JSONObject jsonObject) {
+        Object initialValueObj = jsonObject.get("initialValue");
+        if (initialValueObj instanceof Number) {
+            return ((Number) initialValueObj).intValue();
+        }
+        return 0;
+    }
+
 }
 

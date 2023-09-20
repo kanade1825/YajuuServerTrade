@@ -11,9 +11,8 @@ public class TradeNPCInventoryClick implements Listener {
     public void onInventoryClick(InventoryClickEvent event) {
         Set<String> UserTags = event.getWhoClicked().getScoreboardTags();
         if (UserTags.contains("TradeMenuOpen")) {
+
             event.setCancelled(true);
         }
     }
 }
-
-
