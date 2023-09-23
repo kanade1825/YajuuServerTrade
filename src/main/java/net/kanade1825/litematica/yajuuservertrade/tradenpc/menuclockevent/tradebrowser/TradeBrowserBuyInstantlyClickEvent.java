@@ -9,6 +9,8 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 public class TradeBrowserBuyInstantlyClickEvent implements Listener {
+    public static String lastDisplayName;  // Shared variable to pass the displayName
+
     @EventHandler
     public void onViewPositionClick(InventoryClickEvent event) {
         var clickedInventory = event.getView();
@@ -21,6 +23,7 @@ public class TradeBrowserBuyInstantlyClickEvent implements Listener {
                 if (displayName.equals("§6§lBuy Instantly")) {
                     // 14番目のスロットのアイテムを取得
                     ItemStack itemIn14thSlot = clickedInventory.getItem(13);
+                    lastDisplayName = itemIn14thSlot.getItemMeta().getDisplayName();  // Save to the shared variable
                     String displayNameFromJson = itemIn14thSlot.getItemMeta().getDisplayName();
                     String itemIDFromJson = itemIn14thSlot.getType().name();  // アイテムのMaterial名を取得
 
