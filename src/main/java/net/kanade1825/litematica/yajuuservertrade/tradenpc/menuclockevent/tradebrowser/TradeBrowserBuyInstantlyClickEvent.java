@@ -8,8 +8,11 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.HashMap;
+import java.util.UUID;
+
 public class TradeBrowserBuyInstantlyClickEvent implements Listener {
-    public static String lastDisplayName;  // Shared variable to pass the displayName
+    public static HashMap<UUID, String> lastDisplayNameMap = new HashMap<>();  // Shared map to pass the displayName
 
     @EventHandler
     public void onViewPositionClick(InventoryClickEvent event) {
@@ -23,7 +26,9 @@ public class TradeBrowserBuyInstantlyClickEvent implements Listener {
                 if (displayName.equals("§6§lBuy Instantly")) {
                     // 14番目のスロットのアイテムを取得
                     ItemStack itemIn14thSlot = clickedInventory.getItem(13);
-                    lastDisplayName = itemIn14thSlot.getItemMeta().getDisplayName();  // Save to the shared variable
+                    Player player = (Player) event.getWhoClicked();
+                    UUID playerUUID = player.getUniqueId();
+                    lastDisplayNameMap.put(playerUUID, itemIn14thSlot.getItemMeta().getDisplayName());  // Save to the shared map
                     String displayNameFromJson = itemIn14thSlot.getItemMeta().getDisplayName();
                     String itemIDFromJson = itemIn14thSlot.getType().name();  // アイテムのMaterial名を取得
 

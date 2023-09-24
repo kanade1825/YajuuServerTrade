@@ -73,6 +73,10 @@
             <id>paper-repo</id>
             <url>https://papermc.io/repo/repository/maven-public/</url>
         </repository>
+        <repository>
+            <id>himajyun-repo</id>
+            <url>https://himajyun.github.io/mvn-repo/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -126,6 +130,12 @@
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>42.2.27</version>
+        </dependency>
+        <dependency>
+            <groupId>jp.jyn</groupId>
+            <artifactId>Jecon</artifactId>
+            <version>2.2.1</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>

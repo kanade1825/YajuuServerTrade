@@ -6,6 +6,7 @@ import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.CommandPermission;
 import dev.jorel.commandapi.arguments.ArgumentSuggestions;
 import dev.jorel.commandapi.arguments.StringArgument;
+import jp.jyn.jecon.Jecon;
 import net.kanade1825.litematica.yajuuservertrade.tradenpc.TradeNPC;
 import net.kanade1825.litematica.yajuuservertrade.tradenpc.TradeNPCInventoryClick;
 import net.kanade1825.litematica.yajuuservertrade.tradenpc.TradeNPCInventoryClose;
@@ -16,6 +17,7 @@ import net.kanade1825.litematica.yajuuservertrade.tradenpc.menuclockevent.tradeb
 import net.kanade1825.litematica.yajuuservertrade.tradenpc.menuclockevent.tradebrowser.tradesystem.BuyOnlyOneClickEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.json.simple.JSONObject;
@@ -23,13 +25,16 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
+import java.util.UUID;
 
 public final class YajuuServerTrade extends JavaPlugin {
+    private Jecon jecon;
 
 
     @Override
@@ -71,6 +76,14 @@ public final class YajuuServerTrade extends JavaPlugin {
         Objects.requireNonNull(getCommand("setup")).setExecutor(new SetUP(this));
 
 
+        Plugin plugin = Bukkit.getPluginManager().getPlugin("Jecon");
+        if(plugin == null || !plugin.isEnabled()) {
+            getLogger().warning("Jecon is not available.");
+            return;  // Jeconが利用できない場合は、ここで処理を終了
+        }
+        this.jecon = (Jecon) plugin;  // Jeconの初期化
+
+
         //ほんとはこういうことはしないようにね
         PluginManager pluginManager = Bukkit.getPluginManager();
 
@@ -91,11 +104,15 @@ public final class YajuuServerTrade extends JavaPlugin {
         pluginManager.registerEvents(new TradeBrowserBuyInstantlyClickEvent(), this);
         pluginManager.registerEvents(new TradeBrowserCreateBuyOrderClickEvent(), this);
         pluginManager.registerEvents(new TradeBrowserCreateSellOfferClickEvent(), this);
-        pluginManager.registerEvents(new BuyOnlyOneClickEvent(),this);
+        pluginManager.registerEvents(new BuyOnlyOneClickEvent(jecon),this);
 
 
 
         new SpawnTradeNPC(this);
+
+
+
+
 
 
         getLogger().info(
@@ -139,5 +156,12 @@ public final class YajuuServerTrade extends JavaPlugin {
             e.printStackTrace();
             return null;
         }
+    }
+    public void usage(UUID uuid) {
+        // get
+        jecon.getRepository().getDecimal(uuid);
+
+        // set
+        jecon.getRepository().set(uuid, BigDecimal.ZERO);
     }
 }
