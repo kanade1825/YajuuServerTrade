@@ -182,8 +182,8 @@ public class TradeBrowserMoveItemClickEvent implements Listener {
     private void addOrUpdateInDatabase(Player player, String displayName, String itemId, JSONObject jsonObject) {
         int initialValue = getInitialValueFromJson(jsonObject);
         if (!isInDatabase(player.getName(), displayName)) {
-            insertIntoDatabase(player.getName(), "Buy", 10, initialValue, displayName);
-            insertIntoDatabase(player.getName(), "Sell", 10, initialValue, displayName);
+            insertIntoDatabase(player.getName(), "Buy", 1024, initialValue, displayName);
+            insertIntoDatabase(player.getName(), "Sell", 1024, initialValue, displayName);
         }
     }
 

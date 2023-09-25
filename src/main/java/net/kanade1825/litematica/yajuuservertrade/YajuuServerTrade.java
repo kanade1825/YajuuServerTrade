@@ -14,6 +14,7 @@ import net.kanade1825.litematica.yajuuservertrade.tradenpc.menuclockevent.CloseC
 import net.kanade1825.litematica.yajuuservertrade.tradenpc.menuclockevent.ManageTradesClockEvent;
 import net.kanade1825.litematica.yajuuservertrade.tradenpc.menuclockevent.ViewPositionClockEvent;
 import net.kanade1825.litematica.yajuuservertrade.tradenpc.menuclockevent.tradebrowser.*;
+import net.kanade1825.litematica.yajuuservertrade.tradenpc.menuclockevent.tradebrowser.tradesystem.BuyAStackClickEvent;
 import net.kanade1825.litematica.yajuuservertrade.tradenpc.menuclockevent.tradebrowser.tradesystem.BuyOnlyOneClickEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -105,6 +106,7 @@ public final class YajuuServerTrade extends JavaPlugin {
         pluginManager.registerEvents(new TradeBrowserCreateBuyOrderClickEvent(), this);
         pluginManager.registerEvents(new TradeBrowserCreateSellOfferClickEvent(), this);
         pluginManager.registerEvents(new BuyOnlyOneClickEvent(jecon),this);
+        pluginManager.registerEvents(new BuyAStackClickEvent(jecon),this);
 
 
 
