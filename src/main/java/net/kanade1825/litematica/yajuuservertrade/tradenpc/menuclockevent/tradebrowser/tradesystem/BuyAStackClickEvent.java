@@ -26,12 +26,11 @@ import java.util.regex.Pattern;
 
 public class BuyAStackClickEvent implements Listener {
     private static final Path DB_CONFIG_PATH = Paths.get("plugins/Tradesystem/Config/database_config.json");
+    private static final Pattern COLOR_CODE_PATTERN = Pattern.compile("§[0-9A-FK-ORa-fk-or]");
     private String dbURL;
     private String dbUser;
     private String dbPassword;
-    private Jecon jecon;
-
-    private static final Pattern COLOR_CODE_PATTERN = Pattern.compile("§[0-9A-FK-ORa-fk-or]");
+    private final Jecon jecon;
 
     public BuyAStackClickEvent(Jecon jecon) {
         if (jecon == null) {

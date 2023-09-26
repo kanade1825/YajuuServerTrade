@@ -1,6 +1,7 @@
 package net.kanade1825.litematica.yajuuservertrade.tradenpc.menuclockevent.tradebrowser.tradesystem;
 
-import org.bukkit.Bukkit;
+import jp.jyn.jecon.Jecon;
+import net.kanade1825.litematica.yajuuservertrade.tradenpc.menuclockevent.tradebrowser.TradeBrowserBuyInstantlyClickEvent;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -10,7 +11,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import jp.jyn.jecon.Jecon;
 
 import java.math.BigDecimal;
 import java.nio.file.Files;
@@ -24,17 +24,14 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
-import net.kanade1825.litematica.yajuuservertrade.tradenpc.menuclockevent.tradebrowser.TradeBrowserBuyInstantlyClickEvent;
-
 
 public class BuyOnlyOneClickEvent implements Listener {
     private static final Path DB_CONFIG_PATH = Paths.get("plugins/Tradesystem/Config/database_config.json");
+    private static final Pattern COLOR_CODE_PATTERN = Pattern.compile("§[0-9A-FK-ORa-fk-or]");
     private String dbURL;
     private String dbUser;
     private String dbPassword;
-    private Jecon jecon;
-
-    private static final Pattern COLOR_CODE_PATTERN = Pattern.compile("§[0-9A-FK-ORa-fk-or]");
+    private final Jecon jecon;
 
     public BuyOnlyOneClickEvent(Jecon jecon) {
         if (jecon == null) {

@@ -16,6 +16,7 @@ import net.kanade1825.litematica.yajuuservertrade.tradenpc.menuclockevent.ViewPo
 import net.kanade1825.litematica.yajuuservertrade.tradenpc.menuclockevent.tradebrowser.*;
 import net.kanade1825.litematica.yajuuservertrade.tradenpc.menuclockevent.tradebrowser.tradesystem.BuyAStackClickEvent;
 import net.kanade1825.litematica.yajuuservertrade.tradenpc.menuclockevent.tradebrowser.tradesystem.BuyOnlyOneClickEvent;
+import net.kanade1825.litematica.yajuuservertrade.tradenpc.menuclockevent.tradebrowser.tradesystem.FillMyInventoryClickEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -78,7 +79,7 @@ public final class YajuuServerTrade extends JavaPlugin {
 
 
         Plugin plugin = Bukkit.getPluginManager().getPlugin("Jecon");
-        if(plugin == null || !plugin.isEnabled()) {
+        if (plugin == null || !plugin.isEnabled()) {
             getLogger().warning("Jecon is not available.");
             return;  // Jeconが利用できない場合は、ここで処理を終了
         }
@@ -105,16 +106,14 @@ public final class YajuuServerTrade extends JavaPlugin {
         pluginManager.registerEvents(new TradeBrowserBuyInstantlyClickEvent(), this);
         pluginManager.registerEvents(new TradeBrowserCreateBuyOrderClickEvent(), this);
         pluginManager.registerEvents(new TradeBrowserCreateSellOfferClickEvent(), this);
-        pluginManager.registerEvents(new BuyOnlyOneClickEvent(jecon),this);
-        pluginManager.registerEvents(new BuyAStackClickEvent(jecon),this);
+        pluginManager.registerEvents(new BuyOnlyOneClickEvent(jecon), this);
+        pluginManager.registerEvents(new BuyAStackClickEvent(jecon), this);
+        //何故かitemが付与されない
+        // pluginManager.registerEvents(new FillMyInventoryClickEvent(jecon),this);
 
 
 
         new SpawnTradeNPC(this);
-
-
-
-
 
 
         getLogger().info(
@@ -159,6 +158,7 @@ public final class YajuuServerTrade extends JavaPlugin {
             return null;
         }
     }
+
     public void usage(UUID uuid) {
         // get
         jecon.getRepository().getDecimal(uuid);
