@@ -14,9 +14,9 @@ import net.kanade1825.litematica.yajuuservertrade.tradenpc.menuclockevent.CloseC
 import net.kanade1825.litematica.yajuuservertrade.tradenpc.menuclockevent.ManageTradesClockEvent;
 import net.kanade1825.litematica.yajuuservertrade.tradenpc.menuclockevent.ViewPositionClockEvent;
 import net.kanade1825.litematica.yajuuservertrade.tradenpc.menuclockevent.tradebrowser.*;
-import net.kanade1825.litematica.yajuuservertrade.tradenpc.menuclockevent.tradebrowser.tradesystem.BuyAStackClickEvent;
-import net.kanade1825.litematica.yajuuservertrade.tradenpc.menuclockevent.tradebrowser.tradesystem.BuyOnlyOneClickEvent;
-import net.kanade1825.litematica.yajuuservertrade.tradenpc.menuclockevent.tradebrowser.tradesystem.FillMyInventoryClickEvent;
+import net.kanade1825.litematica.yajuuservertrade.tradenpc.menuclockevent.tradebrowser.tradesystem.buy.BuyAStackClickEvent;
+import net.kanade1825.litematica.yajuuservertrade.tradenpc.menuclockevent.tradebrowser.tradesystem.buy.BuyOnlyOneClickEvent;
+import net.kanade1825.litematica.yajuuservertrade.tradenpc.menuclockevent.tradebrowser.tradesystem.sell.SellInstantlyClickEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -110,7 +110,7 @@ public final class YajuuServerTrade extends JavaPlugin {
         pluginManager.registerEvents(new BuyAStackClickEvent(jecon), this);
         //何故かitemが付与されない
         // pluginManager.registerEvents(new FillMyInventoryClickEvent(jecon),this);
-
+        pluginManager.registerEvents(new SellInstantlyClickEvent(jecon), this);
 
 
         new SpawnTradeNPC(this);

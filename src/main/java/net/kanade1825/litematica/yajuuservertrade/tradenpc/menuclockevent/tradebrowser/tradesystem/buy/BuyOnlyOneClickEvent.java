@@ -1,4 +1,4 @@
-package net.kanade1825.litematica.yajuuservertrade.tradenpc.menuclockevent.tradebrowser.tradesystem;
+package net.kanade1825.litematica.yajuuservertrade.tradenpc.menuclockevent.tradebrowser.tradesystem.buy;
 
 import jp.jyn.jecon.Jecon;
 import net.kanade1825.litematica.yajuuservertrade.tradenpc.menuclockevent.tradebrowser.TradeBrowserBuyInstantlyClickEvent;
@@ -28,10 +28,10 @@ import java.util.regex.Pattern;
 public class BuyOnlyOneClickEvent implements Listener {
     private static final Path DB_CONFIG_PATH = Paths.get("plugins/Tradesystem/Config/database_config.json");
     private static final Pattern COLOR_CODE_PATTERN = Pattern.compile("§[0-9A-FK-ORa-fk-or]");
+    private final Jecon jecon;
     private String dbURL;
     private String dbUser;
     private String dbPassword;
-    private final Jecon jecon;
 
     public BuyOnlyOneClickEvent(Jecon jecon) {
         if (jecon == null) {

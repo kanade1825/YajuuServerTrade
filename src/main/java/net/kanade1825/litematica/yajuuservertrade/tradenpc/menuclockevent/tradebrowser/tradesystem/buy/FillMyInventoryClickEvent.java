@@ -1,4 +1,4 @@
-package net.kanade1825.litematica.yajuuservertrade.tradenpc.menuclockevent.tradebrowser.tradesystem;
+package net.kanade1825.litematica.yajuuservertrade.tradenpc.menuclockevent.tradebrowser.tradesystem.buy;
 
 import jp.jyn.jecon.Jecon;
 import net.kanade1825.litematica.yajuuservertrade.tradenpc.menuclockevent.tradebrowser.TradeBrowserBuyInstantlyClickEvent;
@@ -20,19 +20,21 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
-public class BuyAStackClickEvent implements Listener {
+public class FillMyInventoryClickEvent implements Listener {
+
     private static final Path DB_CONFIG_PATH = Paths.get("plugins/Tradesystem/Config/database_config.json");
     private static final Pattern COLOR_CODE_PATTERN = Pattern.compile("§[0-9A-FK-ORa-fk-or]");
+    private final Jecon jecon;
     private String dbURL;
     private String dbUser;
     private String dbPassword;
-    private final Jecon jecon;
 
-    public BuyAStackClickEvent(Jecon jecon) {
+    public FillMyInventoryClickEvent(Jecon jecon) {
         if (jecon == null) {
             throw new IllegalArgumentException("Jecon instance cannot be null");
         }
@@ -58,9 +60,9 @@ public class BuyAStackClickEvent implements Listener {
             if (clickedItem != null && clickedItem.hasItemMeta() && clickedItem.getItemMeta().hasDisplayName()) {
                 String displayName = clickedItem.getItemMeta().getDisplayName();
 
-                if (displayName.equals("§a§lBuy a stack!")) {  // ボタンの表示名を適切に変更
+                if (displayName.equals("§a§lFill My Inventory!")) {
                     UUID playerUUID = player.getUniqueId();
-                    String lastDisplayName = TradeBrowserBuyInstantlyClickEvent.lastDisplayNameMap.get(playerUUID);  // Retrieve the last display name
+                    String lastDisplayName = TradeBrowserBuyInstantlyClickEvent.lastDisplayNameMap.get(playerUUID);
 
                     if (lastDisplayName == null || lastDisplayName.isEmpty()) {
                         player.sendMessage("No item selected for trading.");
@@ -75,40 +77,28 @@ public class BuyAStackClickEvent implements Listener {
                             return;
                         }
 
-                        // スクロール可能な ResultSet を作成
-                        // スクロール可能な ResultSet を作成
+                        int emptySlots = (int) Arrays.stream(player.getInventory().getContents()).filter(item -> item == null || item.getType() == Material.AIR).count();
+                        int totalItemsToBuy = emptySlots * 64;
+
                         String query = "SELECT * FROM trades WHERE LOWER(ItemName) = LOWER(?) AND LOWER(BuyOrSell)='sell' ORDER BY UnitPrice DESC";
                         try (PreparedStatement preparedStatement = connection.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-                            preparedStatement.setString(1, cleanedDisplayNameFromPreviousEvent);  // 実際の変数を使用
-
+                            preparedStatement.setString(1, cleanedDisplayNameFromPreviousEvent);
                             ResultSet resultSet = preparedStatement.executeQuery();
 
                             int totalQuantity = 0;
                             int totalPrice = 0;
 
-                            // 初回のResultSetの走査で、購入する総量と総価格を計算
                             while (resultSet.next()) {
                                 int unitPrice = resultSet.getInt("UnitPrice");
                                 int availableQuantity = resultSet.getInt("Quantity");
-                                totalQuantity += availableQuantity;
-                                totalPrice += unitPrice * availableQuantity;
-                            }
-
-                            // カーソルをリセットしてデータベースを更新
-                            resultSet.beforeFirst();  // これがエラーなく動作するはず
-
-                            // 二回目のResultSetの走査で、在庫を減らす
-                            while (resultSet.next()) {
-                                int unitPrice = resultSet.getInt("UnitPrice");
-                                int availableQuantity = resultSet.getInt("Quantity");
-                                int quantityToBuy = Math.min(64 - totalQuantity, availableQuantity);
+                                int quantityToBuy = Math.min(totalItemsToBuy - totalQuantity, availableQuantity);
 
                                 totalQuantity += quantityToBuy;
                                 totalPrice += unitPrice * quantityToBuy;
                             }
 
-                            if (totalQuantity < 64) {
-                                player.sendMessage("Not enough items in stock to buy a stack.");
+                            if (totalQuantity < totalItemsToBuy) {
+                                player.sendMessage("Not enough items in stock to fill your inventory.");
                                 return;
                             }
 
@@ -124,21 +114,17 @@ public class BuyAStackClickEvent implements Listener {
                                 return;
                             }
 
-
-                            // Deduct balance
                             jecon.getRepository().set(playerUUID, balance.subtract(BigDecimal.valueOf(totalPrice)));
                             player.sendMessage("Your balance has been reduced by " + totalPrice + " units.");
 
-                            // Reset ResultSet cursor and update database
                             resultSet.beforeFirst();
-                            int remainingStack = 64;  // 64 items to buy in total
+                            int remainingItems = totalItemsToBuy;
 
                             try (PreparedStatement updateStatement = connection.prepareStatement("UPDATE trades SET Quantity=? WHERE LOWER(ItemName)=LOWER(?) AND LOWER(BuyOrSell)='sell'")) {
-                                while (resultSet.next() && remainingStack > 0) {
+                                while (resultSet.next() && remainingItems > 0) {
                                     int currentQuantity = resultSet.getInt("Quantity");
-                                    int quantityToBuy = Math.min(remainingStack, currentQuantity);
+                                    int quantityToBuy = Math.min(remainingItems, currentQuantity);
 
-                                    // Update item quantity in the database
                                     int newQuantity = currentQuantity - quantityToBuy;
                                     updateStatement.setInt(1, newQuantity);
                                     updateStatement.setString(2, cleanedDisplayNameFromPreviousEvent);
@@ -150,19 +136,41 @@ public class BuyAStackClickEvent implements Listener {
                                         player.sendMessage("Failed to update the item quantity in the database.");
                                     }
 
-                                    remainingStack -= quantityToBuy;
+                                    remainingItems -= quantityToBuy;
                                 }
                             }
 
-                            // Give the item to the player
                             Material material = clickedItem.getType();
-                            ItemStack itemToGive = new ItemStack(material, 64);  // Giving 64 items
-                            ItemMeta meta = itemToGive.getItemMeta();
-                            meta.setDisplayName(cleanedDisplayNameFromPreviousEvent);
-                            itemToGive.setItemMeta(meta);
+                            while (remainingItems > 0) {
+                                int quantityToGive = Math.min(64, remainingItems);
+                                ItemStack itemToGive = new ItemStack(material, quantityToGive);
+                                ItemMeta meta = itemToGive.getItemMeta();
+                                meta.setDisplayName(cleanedDisplayNameFromPreviousEvent);
+                                itemToGive.setItemMeta(meta);
 
-                            player.getInventory().addItem(itemToGive);
-                            player.sendMessage("You have received a stack of the item.");
+                                int firstEmptySlot = player.getInventory().firstEmpty();
+                                if (firstEmptySlot >= 0) {
+                                    player.getInventory().setItem(firstEmptySlot, itemToGive);
+                                } else {
+                                    boolean added = false;
+                                    for (ItemStack item : player.getInventory().getContents()) {
+                                        if (item != null && item.isSimilar(itemToGive) && item.getAmount() < item.getMaxStackSize()) {
+                                            int newAmount = Math.min(item.getAmount() + quantityToGive, item.getMaxStackSize());
+                                            item.setAmount(newAmount);
+                                            added = true;
+                                            break;
+                                        }
+                                    }
+                                    if (!added) {
+                                        player.getWorld().dropItemNaturally(player.getLocation(), itemToGive);
+                                        player.sendMessage("Your inventory is full. Some items were dropped on the ground.");
+                                    }
+                                }
+
+                                remainingItems -= quantityToGive;
+                            }
+
+                            player.sendMessage("You have received " + totalItemsToBuy + " items.");
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
